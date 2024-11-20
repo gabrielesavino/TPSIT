@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulazione verifica (compito di javascript)</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        .countdown {
+            font-size: 5em;
+        }
+
+        .hidden-image {
+            display: none; 
+        }
+
+        img {
+            width: 300px;
+            height: auto;
+        }
+
+        .start-button {
+            padding: 12px 25px;
+            font-size: 1.2em;
+            background-color: #006eff;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+        }
+
+        .start-button:hover {
+            background-color: #004bb5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Bottone per avviare il countdown -->
+    <button class="start-button" id="startButton">Inizia Countdown</button>
+
+    <div class="countdown" id="countdown">3</div>
+
+    <div class="hidden-image" id="hiddenImage">
+        <img src="" alt="Risultato" id="resultImage"/>
+    </div>
+
+    <script>
+        let countdownNumber = 3;
+        const countdownElement = document.getElementById('countdown');
+        const hiddenImage = document.getElementById('hiddenImage');
+        const resultImage = document.getElementById('resultImage');
+        const startButton = document.getElementById('startButton');
+
+        // Funzione per ottenere un'immagine casuale
+        function getRandomImage() {
+            const randomNumber = Math.floor(Math.random() * 3) + 1;
+            let imagePath = "";
+
+            if (randomNumber === 1) {
+                imagePath = "image1.jpg"; // Sasso
+            } else if (randomNumber === 2) {
+                imagePath = "image2.jpg"; // Carta
+            } else if (randomNumber === 3) {
+                imagePath = "image3.jpg"; // Forbice
+            }
+
+            return imagePath;
+        }
+
+        // Funzione per avviare il countdown
+        function startCountdown() {
+            // Disabilita il bottone per evitare clic multipli durante il countdown
+            startButton.disabled = true;
+
+            // Imposta l'interval per il countdown
+            const countdownInterval = setInterval(() => {
+                if (countdownNumber > 0) {
+                    countdownElement.textContent = countdownNumber;
+                    countdownNumber--;
+                } else {
+                    clearInterval(countdownInterval);
+                    countdownElement.style.display = 'none'; 
+                    const imageToShow = getRandomImage();
+                    resultImage.src = imageToShow; 
+                    hiddenImage.style.display = 'block'; 
+                }
+            }, 1000);
+        }
+
+        // Aggiungi l'evento al clic del bottone
+        startButton.addEventListener('click', startCountdown);
+    </script>
+</body>
+</html>
