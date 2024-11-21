@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Reset base per una resa uniforme su tutti i browser */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #6a11cb, #2575fc); /* Gradiente di sfondo */
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        #contenitore {
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: left;
+        }
+
+        h1 {
+            color: #006eff;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        p {
+            color: #000000;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: inline-block;
+            font-size: 1.1em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0;
+            font-size: 1.1em;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #006eff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 102, 255, 0.5);
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1.2em;
+            background-color: #006eff;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #004bb5;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        footer p {
+            margin: 0;
+        }
+
+        label {
+            color: #6a11cb;
+        }
+
+        @media (max-width: 768px) {
+            #contenitore {
+                padding: 30px;
+                width: 90%;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="contenitore">
+        <h1>Carta, Pietra, Forbice</h1>
+        <p>Fai clic sul pulsante per generare un'immagine casuale:</p>
+        <button onclick="mostraImmagine()">Nuovo</button>
+        <p id="demo"></p>
+        <p id="countdown" style="font-weight: bold;"></p>
+        <img id="immagine" src="" alt="Immagine" style="display:none; width:200px; height:auto;"/>
+    </div>
+
+    <script>
+        function mostraImmagine() {
+            document.getElementById("demo").innerHTML = ""; // Pulisci il messaggio precedente
+            document.getElementById("immagine").style.display = "none"; // Nascondi l'immagine
+            let countdownElement = document.getElementById("countdown");
+            let countdown = 3; // 3 secondi
+
+            countdownElement.innerHTML = "Carta, Pietra, Forbice... " + countdown;
+
+            let countdownInterval = setInterval(function() {
+                countdown--;
+                countdownElement.innerHTML = "Carta, Pietra, Forbice... " + countdown;
+
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval); // Ferma il countdown
+                    mostraImmagineCasuale(); // Mostra l'immagine
+                }
+            }, 1000); // Aggiorna ogni secondo
+        }
+
+        function mostraImmagineCasuale() {
+            let numeroCasuale = Math.floor(Math.random() * 3) + 1;
+            let immagineSrc = "";
+
+            if (numeroCasuale === 1) {
+                immagineSrc = "image3 (1).png"; // Sasso
+            } else if (numeroCasuale === 2) {
+                immagineSrc = "image3 (2).png"; // Carta
+            } else if (numeroCasuale === 3) {
+                immagineSrc = "image3 (1).png"; // Forbice
+            }
+
+            document.getElementById("immagine").src = immagineSrc;
+            document.getElementById("immagine").style.display = "block";
+        }
+    </script>
+</body>
+</html>
