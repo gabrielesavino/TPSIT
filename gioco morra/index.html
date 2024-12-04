@@ -5,19 +5,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gioco Morra Cinese</title>
     <style>
-        #out2{
-            font-size: large;
-            color: #000000;
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #6e7bff, #ff6eb1);
+            color: #fff;
+            text-align: center;
+            padding: 50px 20px;
+            margin: 0;
         }
-        img {
-            width: 100px;
-            height: 100px;
-            margin: 10px;
-            cursor: pointer;
+
+        /* Titolo principale */
+        h1 {
+            font-size: 3em;
+            color: #fff;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
         }
-        #timer {
-            font-size: 24px;
+
+        /* Contenitore del gioco */
+        #gioco {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            display: inline-block;
+            text-align: center;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        /* Stile del testo di output */
+        #out2 {
+            font-size: 1.5em;
+            color: #333;
+            margin-top: 20px;
             font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Stile per il timer */
+        #timer {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ff6347;
+            margin-top: 20px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Stile delle immagini (per le scelte dell'utente) */
+        img {
+            width: 120px;
+            height: 120px;
+            margin: 20px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Effetto al passaggio del mouse sulle immagini */
+        img:hover {
+            transform: scale(1.15);
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+            opacity: 0.9;
+        }
+
+        /* Stile per il punteggio */
+        #score {
+            font-size: 2em;
+            color: #4CAF50;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        /* Stile per il messaggio di scelta */
+        #out1 {
+            font-size: 1.3em;
+            color: #333;
+        }
+
+        /* Stile per il punteggio */
+        h2 {
+            font-size: 1.8em;
+            margin-top: 30px;
+            color: #4CAF50;
+        }
+
+        /* Colore di sfondo per l'area di gioco */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
     </style>
 </head>
