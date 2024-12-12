@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Array 1</title>
+
+<style>
+    #container{
+        height: 200px;
+        width: 500px;
+        display: inline-block;
+    }
+</style>
+
+</head>
+<body>
+
+    <h1>Array esercizio 1</h1>
+
+    <p>Lista elementi:</p>
+
+    <div id="container">
+    <p id="out1"></p>
+     </div>
+
+    <script>
+        // Definizione di array numeri con 100 numeri casuali
+        let numeri = [];
+
+        // Funzione per riempire l'array con numeri casuali
+        function RiempiArrayConNumeri() {
+            for (let i = 0; i < 100; i++) {
+                numeri[i] = Math.floor(Math.random() * 101); // Numeri da 0 a 100
+            }
+        }
+
+        // Chiamata alla funzione
+        RiempiArrayConNumeri();
+
+        // Visualizzazione dell'array nella pagina
+        document.getElementById("out1").innerHTML = numeri.join(", "); // Aggiunto join per visualizzare i numeri separati da virgola
+    </script>
+
+</body>
+</html>
