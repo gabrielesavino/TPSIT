@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+    <title>Menù Savino</title>
+    <style>
+      /* Global Styling */
+      body {
+        background-color: #121212;
+        color: #ffffff;
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      h1 {
+        font-size: 3rem;
+        font-family: 'Arial', sans-serif;
+        color: #00bcd4;
+        margin-bottom: 20px;
+        animation: fadeIn 2s ease-out;
+      }
+
+      .navbar {
+        background-color: #1e1e1e;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      .navbar-brand img {
+        border-radius: 50%;
+        margin-right: 10px;
+        transition: transform 0.3s ease;
+      }
+
+      .navbar-brand:hover img {
+        transform: rotate(360deg);
+      }
+
+      /* Hover effects for buttons */
+      .btn-primary, .btn-secondary {
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        padding: 10px 20px;
+        font-size: 1rem;
+        border-radius: 50px;
+      }
+
+      .btn-primary:hover, .btn-secondary:hover {
+        transform: scale(1.1);
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .btn-primary {
+        background-color: #007bff;
+        border: none;
+      }
+
+      .btn-primary:hover {
+        background-color: #0056b3;
+      }
+
+      .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+      }
+
+      .btn-secondary:hover {
+        background-color: #5a6268;
+      }
+
+      /* Card styling */
+      .card {
+        background-color: #2c2c2c;
+        border: none;
+        border-radius: 10px;
+        margin: 20px 0;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+      }
+
+      .card-body {
+        color: #f0f0f0;
+        padding: 20px;
+      }
+
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #ffd700;
+        margin-bottom: 10px;
+      }
+
+      .card-text {
+        font-size: 1rem;
+        color: #cccccc;
+        margin-bottom: 15px;
+        line-height: 1.6;
+      }
+
+      .price {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #ffd700;
+        margin-top: 10px;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Hover effects for images in cards */
+      .card-img-top {
+        transition: transform 0.3s ease;
+      }
+
+      .card-img-top:hover {
+        transform: scale(1.1);
+      }
+
+      /* Animated background gradient for the page */
+      @keyframes gradientAnimation {
+        0% {
+          background: linear-gradient(45deg, #65a3ff, #1e1e1e);
+        }
+        50% {
+          background: linear-gradient(45deg, #8c00ff, #1e1e1e);
+        }
+        100% {
+          background: linear-gradient(45deg, #ff4545, #1e1e1e);
+        }
+      }
+
+      body {
+        animation: gradientAnimation 10s ease infinite;
+      }
+
+      /* Section spacing */
+      .container {
+        padding-top: 50px;
+        padding-bottom: 50px;
+      }
+
+      /* Hover effect for row items */
+      .row .col:hover {
+        transform: scale(1.05);
+        transition: transform 0.3s ease;
+      }
+
+      footer {
+        margin-top: auto; /* Questo spinge il footer in fondo */
+        border-radius: 15px; /* Modifica il valore per cambiare l'angolo */
+      }
+
+    </style>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-dark navbar-dark bg-dark">
+      <div class="container-fluid">
+        <img src="./images/logo.png" alt="" width="30" height="24" class="d-inline-block align-text-top">
+          Gabriele Savino
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://github.com/gabrielesavino">GitHub</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Progetti
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <li><a class="dropdown-item" href="link_a_flip_cards_css">Flip cards css</a></li>
+                <li><a class="dropdown-item" href="link_a_gioco_click">Gioco del click</a></li>
+                <li><a class="dropdown-item" href="link_a_temporizzatore_array">Temporizzatore con array</a></li>
+                <li><a class="dropdown-item" href="link_a_array1">Array 1</a></li>
+                <li><a class="dropdown-item" href="link_a_carta_pietra_forbice">Carta pietra forbice</a></li>
+                <li><a class="dropdown-item" href="link_a_gioco_morra">Gioco morra</a></li>
+                <li><a class="dropdown-item" href="link_a_js1">JS 1</a></li>
+                <li><a class="dropdown-item" href="link_a_js3">JS 3</a></li>
+                <li><a class="dropdown-item" href="https://gabrielesavino.github.io/TPSIT/js4/">Calcolatore del Dislivello</a></li>
+                <li><a class="dropdown-item" href="link_a_js5">JS 5</a></li>
+                <li><a class="dropdown-item" href="link_a_js6">JS 6</a></li>
+                <li><a class="dropdown-item" href="link_a_pagina_web_div_annidati">Pagina web div annidati</a></li>
+                <li><a class="dropdown-item" href="link_a_temporizzatore_casuale_definitivo">Temporizzatore casuale</a></li>
+            </ul>            
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container my-5 text-center">
+      <h1>Gabriele Savino</h1>
+      <p class="lead">Benvenuti nel mio angolo digitale! Qui troverete una selezione dei miei progetti, sviluppati con passione e impegno.</p>
+      <a href="#progetti" class="btn btn-primary">Migliori progetti</a>
+      <a href="#chi-sono" class="btn btn-secondary">Chi sono</a>
+
+    </div>
+
+    <!-- Prima riga di card -->
+    <div id="progetti" class="container">
+    <div class="container">
+      <div class="row d-flex justify-content-center">
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+            <img src="./images/morra.png" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">Morra cinese</h5>
+              <p class="card-text">
+                La morra cinese è un gioco in cui la Carta batte la Pietra, la Pietra batte le Forbici e le Forbici battono la Carta. Vince chi sceglie l'oggetto che batte quello dell'avversario.</p>
+              <p class="price">Creato nel 2024</p>
+              <a href="https://gabrielesavino.github.io/TPSIT/gioco%20morra/" class="btn btn-primary">Gioca</a>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+            <img src="./images/dislivello.png" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">Calcolatore del Dislivello</h5>
+              <p class="card-text">Il calcolatore del dislivello misura la differenza di altezza tra due punti. Indica se si è saliti o scesi rispetto al punto di partenza, utile per escursioni, trekking o altre attività all'aperto che richiedono informazioni sulla variazione altimetrica.</p>
+              <p class="price">Creato nel 2024</p>
+              <a href="https://gabrielesavino.github.io/TPSIT/js4/" class="btn btn-primary">Apri</a>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+            <img src="./images/dynamite.png" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">Dynamite Roll</h5>
+              <p class="card-text">Quando vuoi che il sushi esploda in bocca con un mix di sapori intensi e spezie. Il Dynamite Roll è un'esplosione di freschezza con gamberi croccanti, maionese piccante e una grigliata perfetta. Un sushi da brividi!</p>
+              <p class="price">€14.00</p>
+              <a href="#" class="btn btn-primary">Acquista</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seconda riga di card -->
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+            <img src="./images/philadelphia.png" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">Philadelphia Roll</h5>
+              <p class="card-text">Delicato e ricco, il Philadelphia Roll è come una pausa di caffè durante una lunga maratona di codice. Il formaggio cremoso incontra il salmone affumicato per un contrasto perfetto di freschezza e gusto. Chi dice che il sushi non può essere rilassante?</p>
+              <p class="price">€11.00</p>
+              <a href="#" class="btn btn-primary">Acquista</a>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+            <img src="./images/rainbow.png" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">Rainbow Roll</h5>
+              <p class="card-text">Un arcobaleno di colori e sapori: il Rainbow Roll è un'esplosione visiva e gustativa. Condividi questo piatto con gli amici e preparati a fare il pieno di freschezza, croccantezza e un pizzico di magia!</p>
+              <p class="price">€13.00</p>
+              <a href="#" class="btn btn-primary">Acquista</a>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+            <img src="./images/shrimp.png" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">Shrimp Roll</h5>
+              <p class="card-text">Perfetto per chi cerca la freschezza del mare con un tocco di eleganza. Il gambero croccante abbraccia il riso in un sushi semplice, ma mai banale. Elegante, gustoso, irresistibile!</p>
+              <p class="price">€15.00</p>
+              <a href="#" class="btn btn-primary">Acquista</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="chi-sono" class="container">
+      <div class="row">
+        <div class="col">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Chi sono</h5>
+              <p class="card-text">Ciao, sono Gabriele Savino, un appassionato sviluppatore e creatore di progetti tecnologici. Da sempre interessato all'informatica e al mondo del coding, mi piace esplorare nuove tecnologie e affrontare sfide creative. Il mio obiettivo è sviluppare soluzioni innovative e accessibili che possano fare la differenza.</p>
+              <p class="card-text">Nel corso degli anni, ho lavorato su vari progetti, che spaziano dal web development alla creazione di applicazioni interattive. Utilizzo principalmente tecnologie come HTML, CSS, JavaScript e C++, ma sono sempre alla ricerca di nuovi strumenti e linguaggi per espandere le mie competenze.</p>
+              <p class="card-text">Sono anche un forte sostenitore dell'open-source e credo nel valore della collaborazione. Puoi trovare alcuni dei miei progetti su GitHub, dove condivido con la community le mie creazioni e contribuisco a progetti collettivi.</p>
+              <p class="card-text">Quando non sono impegnato a scrivere codice, mi piace esplorare nuovi ambienti, imparare nuove cose e condividere la mia passione per la tecnologia con chi mi sta attorno. Se vuoi saperne di più o discutere di un progetto, non esitare a contattarmi!</p>
+              <a href="https://github.com/gabrielesavino" class="btn btn-primary" target="_blank">GitHub</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+    <footer class="bg-dark text-white py-4 rounded">
+      <div class="container-fluid">
+        <div class="row">
+          <!-- Chi sono -->
+          <div class="col-md-4">
+            <h5>Scopri di più</h5>
+            <p>Se vuoi conoscere meglio il mio lavoro e i progetti che porto avanti, esplora il mio profilo GitHub o contattami per collaborazioni! Sono sempre alla ricerca di nuove sfide e opportunità per crescere e imparare.</p>
+          </div>
+    
+          <!-- Collegamenti utili -->
+          <div class="col-md-4">
+            <h5>Collegamenti utili</h5>
+            <ul class="list-unstyled">
+              <li><a href="https://github.com/gabrielesavino" class="text-white" target="_blank">GitHub</a></li>
+              <li><a href="https://it.linkedin.com/in/gabriele-savino-9577022ab" class="text-white" target="_blank">LinkedIn</a></li>
+              <li><a href="mailto:savinogabriele16@gmail.com" class="text-white">Email</a></li>
+            </ul>
+          </div>
+    
+          <!-- Seguimi -->
+          <div class="col-md-4">
+            <h5>Seguimi</h5>
+            <ul class="list-unstyled d-flex">
+              <li><a href="https://www.instagram.com/gabrysavi_" class="text-white mr-3" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Copyright -->
+        <div class="text-center mt-3">
+          <p>&copy; 2025 Gabriele Savino. Tutti i diritti riservati.</p>
+        </div>
+      </div>
+    </footer>
+    
+    
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+  </body>
+</html>
