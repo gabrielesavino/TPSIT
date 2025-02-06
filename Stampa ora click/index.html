@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Javascript Time salva Bottoni</title>
+  <script>
+    let firstClickTime = null;
+    const timeArray = [];
+
+    function stampaDataOra(buttonNumber) {
+      const currentTime = new Date();
+      const formattedTime = currentTime.toLocaleString();
+      document.getElementById("oraData").innerHTML = "Data e Ora: " + formattedTime;
+
+      if (firstClickTime === null) {
+        firstClickTime = currentTime.getTime();
+        document.getElementById("tempi").innerHTML = "Primo click registrato.";
+      } else {
+        const timeDifferenceMillis = currentTime.getTime() - firstClickTime;
+        const timeDifferenceSeconds = timeDifferenceMillis / 1000; 
+        const timeDifferenceDecimi = timeDifferenceMillis / 100;  
+        const timeDifferenceMillisecondi = timeDifferenceMillis; 
+
+        timeArray.push({
+          seconds: timeDifferenceSeconds,
+          decimi: timeDifferenceDecimi,
+          millisecondi: timeDifferenceMillisecondi
+        });
+
+        document.getElementById("tempi").innerHTML = "Tempi tra il primo click e il " + buttonNumber + "° bottone: <br>" +
+          "Secondi: " + timeDifferenceSeconds.toFixed(3) + " s<br>" +
+          "Decimi di secondo: " + timeDifferenceDecimi.toFixed(1) + " decimi<br>" +
+          "Millisecondi: " + timeDifferenceMillisecondi + " ms";
+        
+        console.log("Tempi dettagliati: ", timeArray);
+      }
+    }
+  </script>
+</head>
+<body>
+  <h2>Premi uno dei bottoni</h2>
+  <button onclick="stampaDataOra(1)">Bottone 1</button>
+  <button onclick="stampaDataOra(2)">Bottone 2</button>
+  <button onclick="stampaDataOra(3)">Bottone 3</button>
+  <button onclick="stampaDataOra(4)">Bottone 4</button>
+
+  <div id="oraData"></div>
+  <div id="tempi"></div>
+</body>
+</html>
