@@ -3,7 +3,136 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Javascript Time salva Bottoni</title>
+  <title>Javascript time salva bottoni</title>
+  <style>
+    :root {
+      --primary-color: #6c5ce7;
+      --secondary-color: #a8a5e6;
+      --background-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--background-gradient);
+      min-height: 100vh;
+      margin: 0;
+      padding: 2rem;
+      color: #2d3436;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: var(--box-shadow);
+      max-width: 800px;
+      width: 90%;
+      margin-top: 2rem;
+    }
+
+    h2 {
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 2.2rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .button-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    button {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      min-width: 120px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--box-shadow);
+      background: #5b4bc4;
+    }
+
+    button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+      );
+      transition: 0.5s;
+    }
+
+    button:hover::after {
+      left: 100%;
+    }
+
+    #oraData, #tempi {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      box-shadow: var(--box-shadow);
+      border-left: 4px solid var(--primary-color);
+      transition: transform 0.3s ease;
+    }
+
+    #oraData:hover, #tempi:hover {
+      transform: translateX(5px);
+    }
+
+    #tempi {
+      background: #f8f9fa;
+      border-color: var(--secondary-color);
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 1rem;
+        width: 95%;
+      }
+      
+      button {
+        width: 100%;
+        padding: 1rem;
+      }
+    }
+
+    .pulse {
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+  </style>
   <script>
     let firstClickTime = null;
     const timeArray = [];
@@ -11,41 +140,46 @@
     function stampaDataOra(buttonNumber) {
       const currentTime = new Date();
       const formattedTime = currentTime.toLocaleString();
-      document.getElementById("oraData").innerHTML = "Data e Ora: " + formattedTime;
+      document.getElementById("oraData").innerHTML = `🕒 Data e Ora: ${formattedTime}`;
 
       if (firstClickTime === null) {
         firstClickTime = currentTime.getTime();
-        document.getElementById("tempi").innerHTML = "Primo click registrato.";
+        document.getElementById("tempi").innerHTML = "✅ Primo click registrato!";
+        document.getElementById("tempi").classList.add('pulse');
+        setTimeout(() => document.getElementById("tempi").classList.remove('pulse'), 1500);
       } else {
         const timeDifferenceMillis = currentTime.getTime() - firstClickTime;
-        const timeDifferenceSeconds = timeDifferenceMillis / 1000; 
-        const timeDifferenceDecimi = timeDifferenceMillis / 100;  
-        const timeDifferenceMillisecondi = timeDifferenceMillis; 
+        const timeDifferenceSeconds = timeDifferenceMillis / 1000;
 
         timeArray.push({
           seconds: timeDifferenceSeconds,
-          decimi: timeDifferenceDecimi,
-          millisecondi: timeDifferenceMillisecondi
+          decimi: timeDifferenceMillis / 100,
+          millisecondi: timeDifferenceMillis
         });
 
-        document.getElementById("tempi").innerHTML = "Tempi tra il primo click e il " + buttonNumber + "° bottone: <br>" +
-          "Secondi: " + timeDifferenceSeconds.toFixed(3) + " s<br>" +
-          "Decimi di secondo: " + timeDifferenceDecimi.toFixed(1) + " decimi<br>" +
-          "Millisecondi: " + timeDifferenceMillisecondi + " ms";
-        
-        console.log("Tempi dettagliati: ", timeArray);
+        document.getElementById("tempi").innerHTML = `
+          📊 Tempi dal primo click al ${buttonNumber}° bottone:<br><br>
+          ⏱️ Secondi: <strong>${timeDifferenceSeconds.toFixed(3)} s</strong><br>
+          ⏳ Decimi: <strong>${(timeDifferenceMillis / 100).toFixed(1)} decimi</strong><br>
+          ⌛ Millisecondi: <strong>${timeDifferenceMillis} ms</strong>
+        `;
+
+        console.log("Dettagli tempi:", timeArray);
       }
     }
   </script>
 </head>
 <body>
-  <h2>Premi uno dei bottoni</h2>
-  <button onclick="stampaDataOra(1)">Bottone 1</button>
-  <button onclick="stampaDataOra(2)">Bottone 2</button>
-  <button onclick="stampaDataOra(3)">Bottone 3</button>
-  <button onclick="stampaDataOra(4)">Bottone 4</button>
-
-  <div id="oraData"></div>
-  <div id="tempi"></div>
+  <div class="container">
+    <h2>⏱️ Misuratore Tempi Click</h2>
+    <div class="button-grid">
+      <button onclick="stampaDataOra(1)">🚀 Bottone 1</button>
+      <button onclick="stampaDataOra(2)">🎯 Bottone 2</button>
+      <button onclick="stampaDataOra(3)">💡 Bottone 3</button>
+      <button onclick="stampaDataOra(4)">✨ Bottone 4</button>
+    </div>
+    <div id="oraData"></div>
+    <div id="tempi"></div>
+  </div>
 </body>
 </html>
