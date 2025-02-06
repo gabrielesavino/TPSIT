@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freaky Memory</title>
-    <!-- Bootstrap CSS -->
+
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Stili personalizzati */
+
         body {
             background-color: #f8f9fa;
             font-family: 'Arial', sans-serif;
@@ -70,20 +70,41 @@
             transform: scale(1.1);
         }
 
-        #startBtn {
+        #startBtn, #backBtn {
             font-size: 1.2rem;
             padding: 10px 30px;
-            background-color: #28a745;
             border: none;
             color: white;
             border-radius: 25px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.2s, box-shadow 0.2s ease;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        #startBtn {
+            background-color: #28a745;
         }
 
         #startBtn:hover {
             background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        #startBtn:active {
+            transform: scale(0.95);
+        }
+
+        #backBtn {
+            background-color: #007bff;
+        }
+
+        #backBtn:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        #backBtn:active {
+            transform: scale(0.95);
         }
 
         .level, .message {
@@ -116,6 +137,7 @@
         .content-section {
             display: none;
         }
+
     </style>
 </head>
 <body>
@@ -156,20 +178,38 @@
     <div class="game-container">
         <h2>Crediti</h2>
         <p>Freaky Memory è stato sviluppato da Gabriele Savino.</p>
+        <button id="backBtn" class="btn btn-primary mt-4" onclick="goBackToGame()">Torna al Gioco</button>
     </div>
 </div>
 
 <div class="content-section" id="settings">
     <div class="game-container">
         <h2>Impostazioni</h2>
-        <p>Qui puoi regolare le impostazioni del gioco (esempio: difficoltà, suoni, etc.).</p>
+        <div>
+            <label for="difficulty">Difficoltà:</label>
+            <select id="difficulty" class="form-control">
+                <option value="easy">Facile</option>
+                <option value="medium">Medio</option>
+                <option value="hard">Difficile</option>
+            </select>
+        </div>
+        <div class="mt-3">
+            <label for="mode">Modalità di Gioco:</label>
+            <select id="mode" class="form-control">
+                <option value="easyMode">Facile (Sequenza si ripete)</option>
+                <option value="timeMode">A Tempo (Risposta limitata)</option>
+                <option value="multiplayerMode">Multiplayer (Giocatori alternati)</option>
+            </select>
+        </div>
+        <button id="backBtn" class="btn btn-primary mt-4" onclick="goBackToGame()">Applica</button>
     </div>
 </div>
 
 <div class="content-section" id="links">
     <div class="game-container">
         <h2>Link</h2>
-        <p><a href="https://github.com" target="_blank">GitHub</a></p>
+        <p><a href="https://github.com/gabrielesavino" target="_blank">GitHub</a></p>
+        <button id="backBtn" class="btn btn-primary mt-4" onclick="goBackToGame()">Torna al Gioco</button>
     </div>
 </div>
 
@@ -177,12 +217,13 @@
     <div class="game-container">
         <h2>Aiuto</h2>
         <p>In questo gioco, memorizzi una sequenza di colori e la ripeti per avanzare di livello. Se sbagli, il gioco termina.</p>
+        <button id="backBtn" class="btn btn-primary mt-4" onclick="goBackToGame()">Torna al Gioco</button>
     </div>
 </div>
 
 <!-- Footer -->
 <div class="footer">
-    <p>&copy; 2025 Gabriele Savino | <a href="#">Codice su GitHub</a></p>
+    <p>&copy; 2025 Gabriele Savino | <a href="https://github.com/gabrielesavino/TPSIT/tree/main/Freaky%20Memory">Codice su GitHub</a></p>
 </div>
 
 <!-- Bootstrap JS e dipendenze -->
@@ -196,13 +237,22 @@
     let playerSequence = [];
     let level = 1;
     let gameStarted = false;
+    let currentPlayer = 1;
+    let gameMode = 'easyMode';
+    let gameSpeed = 1000; 
+    let timeLimit = 5; 
+    let difficulty = 'easy';
 
     const startBtn = document.getElementById('startBtn');
     const levelDisplay = document.getElementById('level');
     const messageDisplay = document.getElementById('message');
     const buttons = document.querySelectorAll('.button');
+    const difficultySelect = document.getElementById('difficulty');
+    const modeSelect = document.getElementById('mode');
 
     startBtn.addEventListener('click', startGame);
+    difficultySelect.addEventListener('change', updateSettings);
+    modeSelect.addEventListener('change', updateSettings);
 
     function startGame() {
         if (!gameStarted) {
@@ -215,7 +265,23 @@
             startBtn.textContent = 'Riavvia Gioco';
             generateSequence();
         } else {
-            location.reload(); // Ricarica la pagina per riavviare il gioco
+            location.reload(); 
+        }
+    }
+
+    function updateSettings() {
+        difficulty = difficultySelect.value;
+        gameMode = modeSelect.value;
+        setGameSpeed();
+    }
+
+    function setGameSpeed() {
+        if (difficulty === 'easy') {
+            gameSpeed = 1000;
+        } else if (difficulty === 'medium') {
+            gameSpeed = 800;
+        } else if (difficulty === 'hard') {
+            gameSpeed = 600;
         }
     }
 
@@ -227,21 +293,33 @@
 
     function showSequence() {
         let i = 0;
-        buttons.forEach(button => button.style.pointerEvents = 'none'); // Disabilita i bottoni durante la sequenza
+        buttons.forEach(button => button.style.pointerEvents = 'none'); 
         let interval = setInterval(() => {
             highlightButton(sequence[i]);
             i++;
             if (i >= sequence.length) {
                 clearInterval(interval);
-                buttons.forEach(button => button.style.pointerEvents = 'auto'); // Riabilita i bottoni
+                buttons.forEach(button => button.style.pointerEvents = 'auto'); 
+                startTimer();
             }
-        }, 1000);
+        }, gameSpeed);
     }
 
     function highlightButton(color) {
         const button = document.querySelector(`[data-color="${color}"]`);
         button.classList.add('highlight');
         setTimeout(() => button.classList.remove('highlight'), 500);
+    }
+
+    function startTimer() {
+        if (gameMode === 'timeMode') {
+            messageDisplay.textContent = `Hai ${timeLimit} secondi per rispondere!`;
+            setTimeout(() => {
+                if (playerSequence.length < sequence.length) {
+                    endGame();
+                }
+            }, timeLimit * 1000);
+        }
     }
 
     buttons.forEach(button => {
@@ -276,13 +354,14 @@
 
     // Funzione per cambiare sezione
     function showSection(sectionId) {
-        // Nascondi tutte le sezioni
         const sections = document.querySelectorAll('.content-section');
         sections.forEach(section => section.style.display = 'none');
-        
-        // Mostra la sezione selezionata
         const section = document.getElementById(sectionId);
         section.style.display = 'block';
+    }
+
+    function goBackToGame() {
+        showSection('gameSection');
     }
 
     // Inizializza la pagina con il gioco visibile
