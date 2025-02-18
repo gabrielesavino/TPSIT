@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Freaky Memory</title>
+
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #121212; 
+      font-family: 'Arial', sans-serif;
+      color: #e0e0e0; 
+      padding-bottom: 60px; 
+    }
+
+    .navbar {
+      background-color: #343a40 !important;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-brand {
+      font-weight: bold;
+      font-size: 1.5rem;
+      color: #fff !important;
+    }
+
+    .navbar-nav .nav-link {
+      color: #fff !important;
+      font-size: 1.1rem;
+      margin-left: 15px;
+    }
+
+    .navbar-nav .nav-link:hover {
+      color: #28a745 !important;
+    }
+
+    .game-container {
+      text-align: center;
+      margin-top: 50px;
+      padding: 20px;
+    }
+
+    .game-container h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #e0e0e0; 
+    }
+
+    /* Griglia 3x3 */
+    .griglia-3x3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 10px;
+      width: 330px;
+      height: 330px;
+      margin: 0 auto;
+    }
+
+    .button {
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      transition: transform 0.2s, opacity 0.3s;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .button:active {
+      transform: scale(0.95);
+    }
+
+    .red    { background-color: #ff4444; }
+    .green  { background-color: #44ff44; }
+    .blue   { background-color: #4444ff; }
+    .yellow { background-color: #ffff44; }
+    .orange { background-color: #ff8800; }
+    .purple { background-color: #800080; }
+    .pink   { background-color: #ff66cc; }
+    .brown  { background-color: #8B4513; }
+    .cyan   { background-color: #00ffff; }
+
+    .highlight {
+      opacity: 0.7;
+      transform: scale(1.1);
+    }
+
+    #startBtn, #backBtn {
+      font-size: 1.2rem;
+      padding: 10px 30px;
+      border: none;
+      color: white;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s, box-shadow 0.2s ease;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    #startBtn {
+      background-color: #28a745;
+    }
+
+    #startBtn:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+    }
+
+    #startBtn:active {
+      transform: scale(0.95);
+    }
+
+    #backBtn {
+      background-color: #007bff;
+    }
+
+    #backBtn:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+
+    #backBtn:active {
+      transform: scale(0.95);
+    }
+
+    .level, .message, .timer {
+      font-size: 1.2rem;
+      margin-top: 10px;
+      color: #e0e0e0; 
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #343a40;
+      color: white;
+      padding: 10px 0;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .footer a {
+      color: #28a745;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    .content-section {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="#">Freaky Memory</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('credits')">Crediti</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('settings')">Impostazioni</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('links')">Link</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('help')">Aiuto</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="content-section" id="gameSection">
+    <div class="game-container">
+      <h2>Freaky Memory</h2>
+      <p class="level" id="level">Livello: 1</p>
+      <button id="startBtn" class="mb-4">Inizia Gioco</button>
+
+      <div class="griglia-3x3">
+        <button class="button red" data-color="red"></button>
+        <button class="button green" data-color="green"></button>
+        <button class="button blue" data-color="blue"></button>
+        <button class="button yellow" data-color="yellow"></button>
+        <button class="button orange" data-color="orange"></button>
+        <button class="button purple" data-color="purple"></button>
+        <button class="button pink" data-color="pink"></button>
+        <button class="button brown" data-color="brown"></button>
+        <button class="button cyan" data-color="cyan"></button>
+      </div>
+
+      <p class="message" id="message"></p>
+      <p class="timer" id="timerDisplay"></p>
+    </div>
+  </div>
+
+  <div class="content-section" id="credits">
+    <div class="game-container">
+      <h2>Crediti</h2>
+      <p>Freaky Memory è stato sviluppato da Gabriele Savino.</p>
+      <button id="backBtn" class="btn btn-primary mt-4" onclick="goBackToGame()">Torna al Gioco</button>
+    </div>
+  </div>
+
+  <div class="content-section" id="settings">
+    <div class="game-container">
+      <h2>Impostazioni</h2>
+      <div>
+        <label for="difficulty">Difficoltà:</label>
+        <select id="difficulty" class="form-control">
+          <option value="easy">Facile</option>
+          <option value="medium">Medio</option>
+          <option value="hard">Difficile</option>
+        </select>
+      </div>
+      <div class="mt-3">
+        <label for="mode">Modalità di Gioco:</label>
+        <select id="mode" class="form-control">
+          <option value="easyMode">Facile (Sequenza si ripete)</option>
+          <option value="timeMode">A Tempo (Risposta limitata)</option>
+          <option value="multiplayerMode">Multiplayer (Giocatori alternati)</option>
+        </select>
+      </div>
+      <button id="backBtn" class="btn btn-primary mt-4" onclick="goBackToGame()">Applica</button>
+    </div>
+  </div>
+
+  <div class="content-section" id="links">
+    <div class="game-container">
+      <h2>Link</h2>
+      <p><a href="https://github.com/gabrielesavino" target="_blank">GitHub</a></p>
+      <button id="backBtn" class="btn btn-primary mt-4" onclick="goBackToGame()">Torna al Gioco</button>
+    </div>
+  </div>
+
+  <div class="content-section" id="help">
+    <div class="game-container">
+      <h2>Aiuto</h2>
+      <p>In questo gioco, memorizzi una sequenza di colori e la ripeti per avanzare di livello. Se sbagli, il gioco termina.</p>
+      <button id="backBtn" class="btn btn-primary mt-4" onclick="goBackToGame()">Torna al Gioco</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>&copy; 2025 Gabriele Savino | <a href="https://github.com/gabrielesavino/TPSIT/tree/main/Freaky%20Memory" target="_blank">Codice su GitHub</a></p>
+  </div>
+
+
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+  <script>
+    let sequence = [];
+    let playerSequence = [];
+    let level = 1;
+    let gameStarted = false;
+    let currentPlayer = 1;
+    let gameMode = 'easyMode';
+    let gameSpeed = 1000; 
+    let timeLimit = 5; 
+    let difficulty = 'easy';
+    let timerInterval = null;
+
+    const startBtn = document.getElementById('startBtn');
+    const levelDisplay = document.getElementById('level');
+    const messageDisplay = document.getElementById('message');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const buttons = document.querySelectorAll('.button');
+    const difficultySelect = document.getElementById('difficulty');
+    const modeSelect = document.getElementById('mode');
+
+    startBtn.addEventListener('click', startGame);
+    difficultySelect.addEventListener('change', updateSettings);
+    modeSelect.addEventListener('change', updateSettings);
+
+    function startGame() {
+      difficulty = difficultySelect.value;
+      gameMode = modeSelect.value;
+      setGameSpeed();
+
+      if (gameMode === 'multiplayerMode') {
+        currentPlayer = 1;
+        messageDisplay.textContent = 'Giocatore 1, inizia!';
+      } else {
+        messageDisplay.textContent = '';
+      }
+
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      
+      gameStarted = true;
+      sequence = [];
+      playerSequence = [];
+      level = 1;
+      levelDisplay.textContent = 'Livello: ' + level;
+      startBtn.textContent = 'Riavvia Gioco';
+      timerDisplay.textContent = '';
+      generateSequence();
+    }
+
+    function updateSettings() {
+      difficulty = difficultySelect.value;
+      gameMode = modeSelect.value;
+      setGameSpeed();
+    }
+
+    function setGameSpeed() {
+      if (difficulty === 'easy') {
+        gameSpeed = 1000;
+        timeLimit = 5;
+      } else if (difficulty === 'medium') {
+        gameSpeed = 800;
+        timeLimit = 4;
+      } else if (difficulty === 'hard') {
+        gameSpeed = 600;
+        timeLimit = 3;
+      }
+    }
+
+    function generateSequence() {
+      const colors = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'cyan'];
+      sequence.push(colors[Math.floor(Math.random() * colors.length)]);
+      showSequence();
+    }
+
+    function showSequence() {
+      let i = 0;
+      buttons.forEach(button => button.style.pointerEvents = 'none');
+      let interval = setInterval(() => {
+        highlightButton(sequence[i]);
+        i++;
+        if (i >= sequence.length) {
+          clearInterval(interval);
+          buttons.forEach(button => button.style.pointerEvents = 'auto');
+          startTimer();
+        }
+      }, gameSpeed);
+    }
+
+    function highlightButton(color) {
+      const button = document.querySelector(`[data-color="${color}"]`);
+      button.classList.add('highlight');
+      setTimeout(() => button.classList.remove('highlight'), 500);
+    }
+
+    function startTimer() {
+      if (gameMode === 'timeMode') {
+        let remaining = timeLimit;
+        timerDisplay.textContent = `Tempo rimanente: ${remaining}s`;
+        timerInterval = setInterval(() => {
+          remaining--;
+          timerDisplay.textContent = `Tempo rimanente: ${remaining}s`;
+          if (remaining <= 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            if (playerSequence.length < sequence.length) {
+              endGame();
+            }
+          }
+        }, 1000);
+      }
+    }
+
+    function checkSequence() {
+      const index = playerSequence.length - 1;
+      if (playerSequence[index] !== sequence[index]) {
+        endGame();
+        return;
+      }
+      if (playerSequence.length === sequence.length) {
+        if (gameMode === 'timeMode' && timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          timerDisplay.textContent = '';
+        }
+        if (gameMode === 'multiplayerMode') {
+          if (currentPlayer === 1) {
+            currentPlayer = 2;
+            messageDisplay.textContent = 'Giocatore 2, tocca a te!';
+            playerSequence = [];
+          } else {
+            level++;
+            levelDisplay.textContent = 'Livello: ' + level;
+            currentPlayer = 1;
+            messageDisplay.textContent = 'Giocatore 1, inizia!';
+            playerSequence = [];
+            setTimeout(generateSequence, 1000);
+          }
+        } else {
+          level++;
+          levelDisplay.textContent = 'Livello: ' + level;
+          playerSequence = [];
+          setTimeout(generateSequence, 1000);
+        }
+      }
+    }
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        if (!gameStarted) return;
+        const color = button.getAttribute('data-color');
+        playerSequence.push(color);
+        highlightButton(color);
+        checkSequence();
+      });
+    });
+
+    function endGame() {
+      gameStarted = false;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timerDisplay.textContent = '';
+      }
+      if (gameMode === 'multiplayerMode') {
+        const losingPlayer = currentPlayer;
+        const winningPlayer = currentPlayer === 1 ? 2 : 1;
+        messageDisplay.textContent = `Giocatore ${losingPlayer} ha sbagliato! Giocatore ${winningPlayer} vince!`;
+      } else {
+        messageDisplay.textContent = `Game Over! Il tuo punteggio è: ${level - 1}`;
+      }
+      startBtn.textContent = 'Riprova';
+    }
+
+    function showSection(sectionId) {
+      document.querySelectorAll('.content-section').forEach(section => {
+        section.style.display = 'none';
+      });
+      document.getElementById(sectionId).style.display = 'block';
+    }
+
+    function goBackToGame() {
+      showSection('gameSection');
+    }
+
+    showSection('gameSection');
+    difficultySelect.value = 'easy';
+    modeSelect.value = 'easyMode';
+  </script>
+
+</body>
+</html>
