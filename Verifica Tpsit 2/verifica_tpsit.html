@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <!-- Impostazione del set di caratteri e del viewport per la compatibilità mobile -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sito Completo con Bootstrap e Funzionalità</title>
+
+    <!-- Link a Bootstrap CSS, per utilizzare le classi di Bootstrap per layout e stili -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Stili personalizzati per il sito -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;  /* Imposta il tipo di carattere per il sito */
+        }
+
+        /* Stile per la casella dell'orario in tempo reale */
+        .time-box {
+            font-size: 24px;  /* Imposta la dimensione del testo */
+            font-weight: bold;  /* Rende il testo grassetto */
+            background-color: #f8f9fa;  /* Imposta uno sfondo chiaro */
+            padding: 20px;  /* Aggiunge spazio interno alla casella */
+            border-radius: 8px;  /* Angoli arrotondati per la casella */
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);  /* Aggiunge un'ombra per un effetto di profondità */
+            margin-top: 20px;  /* Aggiunge uno spazio sopra la casella */
+        }
+
+        /* Immagini del carosello che si adattano allo schermo */
+        .carousel-item img {
+            width: 100%;  /* Imposta la larghezza dell'immagine al 100% */
+            height: auto;  /* Mantiene il rapporto di aspetto dell'immagine */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar: barra di navigazione -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <!-- Titolo del sito nella navbar -->
+            <a class="navbar-brand" href="#">Sito con Bootstrap</a>
+            <!-- Pulsante per la versione mobile (per mostrare/nascondere la navbar su schermi piccoli) -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- Link di navigazione nella navbar -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Carosello</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contatore Orario</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Carosello di Immagini -->
+    <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <!-- Immagine 1 -->
+            <div class="carousel-item active">
+                <img src="https://via.placeholder.com/800x400?text=Immagine+1" class="d-block w-100" alt="Immagine 1">
+            </div>
+            <!-- Immagine 2 -->
+            <div class="carousel-item">
+                <img src="https://via.placeholder.com/800x400?text=Immagine+2" class="d-block w-100" alt="Immagine 2">
+            </div>
+            <!-- Immagine 3 -->
+            <div class="carousel-item">
+                <img src="https://via.placeholder.com/800x400?text=Immagine+3" class="d-block w-100" alt="Immagine 3">
+            </div>
+        </div>
+    </div>
+
+    <!-- Griglia Responsiva -->
+    <div class="container my-5">
+        <h2 class="text-center">Griglia Responsiva</h2>
+        <!-- Righe e colonne della griglia -->
+        <div class="row">
+            <!-- Colonna che occupa metà della larghezza su schermi piccoli e metà su schermi medi -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="p-3" style="background-color: lightblue;">Colonna 1</div>
+            </div>
+            <!-- Colonna che occupa metà della larghezza su schermi piccoli e metà su schermi medi -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="p-3" style="background-color: lightgreen;">Colonna 2</div>
+            </div>
+            <!-- Colonna che occupa tutta la larghezza su schermi piccoli e metà su schermi medi -->
+            <div class="col-12 col-md-12 col-lg-4">
+                <div class="p-3" style="background-color: lightcoral;">Colonna 3</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orario in Tempo Reale -->
+    <div class="container">
+        <h2 class="text-center">Orario in Tempo Reale</h2>
+        <div class="row justify-content-center">
+            <!-- Colonna per il contenitore dell'orario -->
+            <div class="col-md-6">
+                <!-- Casella dove viene mostrato l'orario -->
+                <div class="time-box text-center" id="timeBox">
+                    <p id="demo"></p>  <!-- L'orario verrà aggiornato qui -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script JavaScript -->
+    <script>
+        // Funzione per ottenere l'orario corrente in formato hh:mm:ss:ms
+        function getCurrentTime() {
+            const now = new Date();  // Ottieni l'ora corrente
+            const hours = now.getHours().toString().padStart(2, '0');  // Ore (con zeri iniziali se necessario)
+            const minutes = now.getMinutes().toString().padStart(2, '0');  // Minuti
+            const seconds = now.getSeconds().toString().padStart(2, '0');  // Secondi
+            const milliseconds = now.getMilliseconds().toString().padStart(3, '0');  // Millisecondi
+            
+            // Restituisce l'orario formattato
+            return `${hours}:${minutes}:${seconds}:${milliseconds}`;
+        }
+
+        // Intervallo che aggiorna l'orario ogni 100 millisecondi
+        setInterval(() => {
+            document.getElementById("demo").innerHTML = getCurrentTime();  // Aggiorna l'orario nell'elemento con id "demo"
+        }, 100);  // Intervallo di 100ms (per vedere anche i millisecondi)
+    </script>
+
+    <!-- Link a Bootstrap JS (necessario per il corretto funzionamento di alcuni componenti, come il carosello) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolo Dislivello Trekking Savino</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        #contenitore {
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: left;
+        }
+
+        h1 {
+            color: #006eff;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: inline-block;
+            font-size: 1.1em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0;
+            font-size: 1.1em;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #006eff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 102, 255, 0.5);
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1.2em;
+            background-color: #006eff;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #004bb5;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        footer p {
+            margin: 0;
+        }
+
+        label {
+            color: #6a11cb;
+        }
+
+        @media (max-width: 768px) {
+            #contenitore {
+                padding: 30px;
+                width: 90%;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="contenitore">
+        <h1>Calcolatore del Dislivello</h1>
+
+        <label for="start">Altezza iniziale (in metri): </label>
+        <input type="text" id="start" name="start"><br>
+
+        <label for="pause">Altezza di pausa (in metri): </label>
+        <input type="text" id="pause" name="pause"><br>
+
+        <label for="end">Altezza finale (in metri): </label>
+        <input type="text" id="end" name="end"><br>
+
+        <button onclick="calcolaDislivello()">Calcola il dislivello</button>
+
+        <p id="output">Dislivello finale:</p>
+    </div>
+
+    <script>
+        function calcolaDislivello() {
+            const output = document.getElementById("output");
+            const start = parseFloat(document.getElementById("start").value);
+            const pause = parseFloat(document.getElementById("pause").value);
+            const end = parseFloat(document.getElementById("end").value);
+
+            if (isNaN(start) || isNaN(pause) || isNaN(end)) {
+                output.innerText = "Inserisci valori validi in metri!";
+                output.style.color = 'red';
+                return;
+            }
+
+            const dislivelloTotale = Math.abs(pause - start) + Math.abs(end - pause);
+            output.innerText = `Dislivello Totale: ${dislivelloTotale} metri`;
+            output.style.color = 'green';
+        }
+    </script>
+
+    <footer>
+        <p>Creato da Gabriele Savino</p>
+    </footer>
+</body>
+</html>

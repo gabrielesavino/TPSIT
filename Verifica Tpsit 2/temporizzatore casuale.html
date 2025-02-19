@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporizzatore Casuale</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to right, #00ff80, #0b9999);
+        }
+
+        .contenitore {
+            text-align: center;
+            background: linear-gradient(to right, #00ff80, #0b9999);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #informazioni {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        #bottone {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="contenitore">
+        <h1>Temporizzatore Casuale</h1>
+        <button id="inizia">Inizia</button>
+        <div id="informazioni">
+            <!-- I risultati appariranno qui -->
+        </div>
+    </div>
+    <script>
+        function èPrimo(numero) {
+            if (numero <= 1) return false;
+            if (numero <= 3) return true;
+            if (numero % 2 === 0 || numero % 3 === 0) return false;
+            for (let i = 5; i * i <= numero; i += 6) {
+                if (numero % i === 0 || numero % (i + 2) === 0) return false;
+            }
+            return true;
+        }
+
+        function aggiornaInformazioni() {
+            const numero = Math.floor(Math.random() * 1000) + 1;
+            const infoDiv = document.getElementById('informazioni');
+
+            const èPari = numero % 2 === 0 ? 'pari' : 'dispari';
+            const èPrimoStr = èPrimo(numero) ? 'è primo' : 'non è primo';
+            const doppio = numero * 2;
+            const metà = Math.floor(numero / 2);
+            const complemento = 1000 - numero;
+            const sommaVicini = (numero - 1) + numero + (numero + 1);
+            const moltiplicato = numero * 3.14;
+
+            infoDiv.innerHTML = `
+                Numero: ${numero} <br>
+                È ${èPari} <br>
+                ${èPrimoStr} <br>
+                Il doppio: ${doppio} <br>
+                La metà intera: ${metà} <br>
+                Il complemento: ${complemento} <br>
+                La somma con i vicini: ${sommaVicini} <br>
+                Moltiplicato per 3.14: ${moltiplicato.toFixed(2)}
+            `;
+        }
+
+        let intervallo;
+
+        document.getElementById('inizia').addEventListener('click', function() {
+            if (intervallo) clearInterval(intervallo);
+            aggiornaInformazioni();
+            intervallo = setInterval(aggiornaInformazioni, 5000);
+        });
+    </script>
+</body>
+</html>

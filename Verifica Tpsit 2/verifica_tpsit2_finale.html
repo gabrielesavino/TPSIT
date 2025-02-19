@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo Completo: Bootstrap, Grid, Transform, Orari, setInterval</title>
+  <!-- Inclusione di Bootstrap CSS tramite CDN -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    /* --- CSS per la Griglia Colorata --- */
+    .grid-container {
+      display: grid; /* Attiva il layout a griglia */
+      grid-template-columns: repeat(3, 100px); /* 3 colonne da 100px ciascuna */
+      grid-template-rows: repeat(3, 100px); /* 3 righe da 100px ciascuna */
+      gap: 10px; /* Spazio di 10px tra le celle */
+      justify-content: center; /* Centra la griglia orizzontalmente */
+      margin-top: 20px; /* Margine superiore di 20px */
+    }
+    .grid-item {
+      border-radius: 10px; /* Angoli arrotondati */
+      display: flex; /* Utilizza Flexbox per centrare il contenuto */
+      align-items: center; /* Centra verticalmente */
+      justify-content: center; /* Centra orizzontalmente */
+      color: #fff; /* Testo bianco */
+      font-weight: bold; /* Testo in grassetto */
+      transition: transform 0.2s, opacity 0.3s; /* Transizione fluida per trasformazioni e opacità */
+      cursor: pointer; /* Cambia il cursore al passaggio */
+    }
+    /* Classe per evidenziare gli elementi della griglia */
+    .grid-item.highlight {
+      transform: scale(1.2); /* Ingrandisce l'elemento del 20% */
+      opacity: 0.8; /* Riduce l'opacità */
+    }
+    /* --- Classi per i colori degli elementi della griglia --- */
+    .red    { background-color: #ff4444; }
+    .green  { background-color: #44ff44; }
+    .blue   { background-color: #4444ff; }
+    .yellow { background-color: #ffff44; color: #000; } /* Testo nero per miglior contrasto */
+    .orange { background-color: #ff8800; }
+    .purple { background-color: #800080; }
+    .pink   { background-color: #ff66cc; }
+    .brown  { background-color: #8B4513; }
+    .cyan   { background-color: #00ffff; color: #000; } /* Testo nero per miglior contrasto */
+
+    /* --- CSS per il Box della Demo Transform --- */
+    #box {
+      width: 150px; /* Larghezza del box */
+      height: 150px; /* Altezza del box */
+      background-color: #3498db; /* Colore di sfondo del box */
+      margin: 20px auto; /* Margine verticale di 20px e centrato orizzontalmente */
+      transition: transform 0.5s; /* Transizione fluida per le trasformazioni (durata 0.5s) */
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar Bootstrap: barra di navigazione in cima alla pagina -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Demo Completo</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" 
+      data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" 
+      aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!-- Menu della navbar -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+         <li class="nav-item active">
+           <a class="nav-link" href="#">Home</a>
+         </li>
+         <li class="nav-item">
+           <a class="nav-link" href="#">Info</a>
+         </li>
+      </ul>
+    </div>
+  </nav>
+  
+  <!-- Container principale per il contenuto della pagina -->
+  <div class="container mt-4">
+    <!-- Sezione Orologio Digitale -->
+    <div class="row">
+      <div class="col text-center">
+        <h2>Orologio Digitale</h2>
+        <!-- Elemento per visualizzare l'orologio -->
+        <p id="clock" class="display-4"></p>
+      </div>
+    </div>
+    
+    <!-- Sezione Griglia Colorata -->
+    <div class="row">
+      <div class="col text-center">
+        <h2>Griglia Colorata</h2>
+        <!-- Container della griglia -->
+        <div class="grid-container">
+          <!-- Ogni div rappresenta un elemento della griglia, con classi per il colore -->
+          <div class="grid-item red">1</div>
+          <div class="grid-item green">2</div>
+          <div class="grid-item blue">3</div>
+          <div class="grid-item yellow">4</div>
+          <div class="grid-item orange">5</div>
+          <div class="grid-item purple">6</div>
+          <div class="grid-item pink">7</div>
+          <div class="grid-item brown">8</div>
+          <div class="grid-item cyan">9</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Sezione Demo Transform con Bottoni -->
+    <div class="row mt-4">
+      <div class="col text-center">
+        <h2>Demo Transform con Bottoni</h2>
+        <!-- Box su cui verranno applicate le trasformazioni -->
+        <div id="box"></div>
+        <!-- Bottoni per eseguire le trasformazioni -->
+        <div class="mt-3">
+          <button class="btn btn-primary m-1" onclick="rotateBox()">Ruota</button>
+          <button class="btn btn-success m-1" onclick="scaleBox()">Scala</button>
+          <button class="btn btn-warning m-1" onclick="translateBox()">Trasla</button>
+          <button class="btn btn-danger m-1" onclick="resetBox()">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Inclusione di jQuery, Popper.js e Bootstrap JS tramite CDN -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  
+  <!-- JavaScript personalizzato -->
+  <script>
+    /* ---------------------------
+       1. Orologio Digitale
+       --------------------------- */
+    // Funzione per aggiornare l'orologio digitale
+    function updateClock() {
+      const now = new Date(); // Ottieni la data e l'ora correnti
+      // Formatta ore, minuti, secondi e millisecondi con zero-padding
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const seconds = now.getSeconds().toString().padStart(2, '0');
+      const milliseconds = now.getMilliseconds().toString().padStart(3, '0');
+      // Aggiorna il contenuto dell'elemento con id "clock"
+      document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}:${milliseconds}`;
+    }
+    // Aggiorna l'orologio ogni 100 millisecondi
+    setInterval(updateClock, 100);
+    
+    /* ---------------------------
+       2. Evidenziazione Ciclica della Griglia
+       --------------------------- */
+    // Seleziona tutti gli elementi della griglia (classi "grid-item")
+    const gridItems = document.querySelectorAll('.grid-item');
+    let currentIndex = 0; // Variabile per tenere traccia dell'elemento corrente
+    // Funzione per evidenziare ciclicamente gli elementi della griglia
+    function highlightGrid() {
+      // Rimuove la classe 'highlight' da tutti gli elementi
+      gridItems.forEach(item => item.classList.remove('highlight'));
+      // Aggiunge la classe 'highlight' all'elemento corrente
+      gridItems[currentIndex].classList.add('highlight');
+      // Aggiorna l'indice per passare al prossimo elemento (ciclo)
+      currentIndex = (currentIndex + 1) % gridItems.length;
+    }
+    // Esegue la funzione highlightGrid ogni 1000 millisecondi (1 secondo)
+    setInterval(highlightGrid, 1000);
+    
+    /* ---------------------------
+       3. Effetto di Trasformazione al Click sulla Griglia
+       --------------------------- */
+    // Aggiunge un event listener a ciascun elemento della griglia
+    gridItems.forEach(item => {
+      item.addEventListener('click', () => {
+        // Aggiunge temporaneamente la classe 'highlight' al click
+        item.classList.add('highlight');
+        // Rimuove la classe dopo 300 millisecondi
+        setTimeout(() => item.classList.remove('highlight'), 300);
+      });
+    });
+    
+    /* ---------------------------
+       4. Demo Transform con Bottoni
+       --------------------------- */
+    // Variabili per tracciare lo stato delle trasformazioni
+    let rotation = 0;      // Angolo di rotazione (in gradi)
+    let scale = 1;         // Fattore di scala (1 = dimensione originale)
+    let translation = 0;   // Valore di traslazione in pixel sull'asse X
+    
+    // Funzione per aggiornare lo stile 'transform' del box
+    function updateTransform() {
+      document.getElementById('box').style.transform =
+        `rotate(${rotation}deg) scale(${scale}) translateX(${translation}px)`;
+    }
+    
+    // Funzione per ruotare il box: incrementa la rotazione di 45° e aggiorna la trasformazione
+    function rotateBox() {
+      rotation += 45;
+      updateTransform();
+    }
+    
+    // Funzione per scalare il box: aumenta la scala del 20% e aggiorna la trasformazione
+    function scaleBox() {
+      scale += 0.2;
+      updateTransform();
+    }
+    
+    // Funzione per traslare il box: sposta il box a destra di 20px e aggiorna la trasformazione
+    function translateBox() {
+      translation += 20;
+      updateTransform();
+    }
+    
+    // Funzione per resettare tutte le trasformazioni del box
+    function resetBox() {
+      rotation = 0;      // Resetta la rotazione
+      scale = 1;         // Resetta la scala
+      translation = 0;   // Resetta la traslazione
+      updateTransform();
+    }
+  </script>
+</body>
+</html>

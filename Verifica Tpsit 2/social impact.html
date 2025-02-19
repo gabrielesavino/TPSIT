@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Social Impact - Gabriele Savino</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { padding-top: 60px; }
+
+        .hero-section {
+        background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('/immagini/logo2.jpg');
+        background-size: cover;
+        color: #ffffff; 
+        padding: 100px 0;
+    }
+
+        #map {
+            height: 400px;
+            width: 100%; 
+        }
+
+/* Modalità scura */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #121212;
+        color: #e0e0e0;
+    }
+
+    .navbar, .footer, .card, .hero-section {
+        background-color: #1c1c1c;
+        color: #ffffff;
+    }
+
+    .btn-warning {
+        background-color: #ff9800;
+    }
+}
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">Social Impact</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#statistics">Statistiche</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Piattaforme
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="https://www.facebook.com/">Facebook</a></li>
+                            <li><a class="dropdown-item" href="https://www.instagram.com/">Instagram</a></li>
+                            <li><a class="dropdown-item" href="https://www.tiktok.com/">TikTok</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled">Prossimamente</a>
+                    </li>
+                </ul>
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="Cerca">
+                    <button class="btn btn-outline-light" type="submit">Cerca</button>
+                </form>
+            </div>
+        </div>
+    </nav>    
+
+<div class="hero-section text-center mb-5">
+    <div class="container">
+        <h1 class="display-4">I social network e la loro influenza  </h1>
+        <p class="lead">Esplorando l'influenza dei social media sulla società moderna</p>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#infoModal">
+            Scopri di più
+        </button>
+    </div>
+</div>
+
+
+<div class="container">
+
+    <div class="alert alert-dark alert-dismissible fade show" role="alert">
+        <strong>Novità!</strong> Scopri le ultime statistiche sull'uso dei social media nel 2025.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    
+
+
+    <div id="statistics" class="row mb-4"></div>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-dark text-light">
+                <img src="/immagini/impatto-sociale.jpg" class="card-img-top" alt="Impatto Sociale">
+                <div class="card-body">
+                    <h5 class="card-title">Impatto Sociale</h5>
+                    <p class="card-text">Come i social network influenzano le relazioni interpersonali e la comunicazione.</p>
+                    <a href="https://www.scienzimpresa.com/impatto-dei-social-media-sulla-nostra-vita/" class="btn btn-primary">Apri</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-light">
+                <img src="/immagini/psicologia.jpg" class="card-img-top" alt="Aspetti Psicologici">
+                <div class="card-body">
+                    <h5 class="card-title">Aspetti Psicologici</h5>
+                    <p class="card-text">Gli effetti dei social media sulla salute mentale e il benessere.</p>
+                    <a href="https://www.agendadigitale.eu/cultura-digitale/salute-mentale-i-social-sono-davvero-il-male-assoluto-cosa-dicono-gli-studi/" class="btn btn-primary">Apri</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-light">
+                <img src="/immagini/business.jpg" class="card-img-top" alt="Marketing Digitale">
+                <div class="card-body">
+                    <h5 class="card-title">Marketing Digitale</h5>
+                    <p class="card-text">L'impatto dei social network sul mondo del business.</p>
+                    <a href="https://blog.smarteventi.it/limpatto-rivoluzionario-dei-social-media-sul-business-e-sulla-comunicazione.html" class="btn btn-primary">Apri</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Mappa Interattiva dei Social Media</h2>
+        <p class="text-center mb-4">Scopri i paesi con il maggiore utilizzo di Facebook, Instagram e TikTok e i social più popolari per ciascun continente.</p>
+        
+        <div id="map"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([20.0, 0.0], 2); 
+
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CartoDB</a>'
+        }).addTo(map);
+
+        var markerFB1 = L.marker([39.9, 32.9]).addTo(map);  
+        markerFB1.bindPopup("<b>Turchia</b><br><b>Social più utilizzato:</b> Facebook<br><b>Posizione nella top 3:</b> 1° (Facebook).");
+
+        var markerFB2 = L.marker([34.0522, -118.2437]).addTo(map);  
+        markerFB2.bindPopup("<b>Stati Uniti</b><br><b>Social più utilizzato:</b> Facebook<br><b>Posizione nella top 3:</b> 2° (Facebook).");
+
+        var markerFB3 = L.marker([13.0819, 80.2785]).addTo(map); 
+        markerFB3.bindPopup("<b>India</b><br><b>Social più utilizzato:</b> Facebook<br><b>Posizione nella top 3:</b> 3° (Facebook).");
+
+        // Marker per i paesi con il maggiore uso di Instagram
+        var markerIG1 = L.marker([48.8566, 2.3522]).addTo(map);  
+        markerIG1.bindPopup("<b>Francia</b><br><b>Social più utilizzato:</b> Instagram<br><b>Posizione nella top 3:</b> 1° (Instagram).");
+
+        var markerIG2 = L.marker([41.9028, 12.4964]).addTo(map);  
+        markerIG2.bindPopup("<b>Italia</b><br><b>Social più utilizzato:</b> Instagram<br><b>Posizione nella top 3:</b> 2° (Instagram).");
+
+        var markerIG3 = L.marker([-23.5505, -46.6333]).addTo(map);  
+        markerIG3.bindPopup("<b>Brasile</b><br><b>Social più utilizzato:</b> Instagram<br><b>Posizione nella top 3:</b> 3° (Instagram).");
+
+        // Marker per i paesi con il maggiore uso di TikTok
+        var markerTT1 = L.marker([51.5074, -0.1278]).addTo(map);  
+        markerTT1.bindPopup("<b>Regno Unito</b><br><b>Social più utilizzato:</b> TikTok<br><b>Posizione nella top 3:</b> 1° (TikTok).");
+
+        var markerTT2 = L.marker([37.7749, -122.4194]).addTo(map);  
+        markerTT2.bindPopup("<b>Stati Uniti</b><br><b>Social più utilizzato:</b> TikTok<br><b>Posizione nella top 3:</b> 2° (TikTok).");
+
+        var markerTT3 = L.marker([39.9042, 116.4074]).addTo(map); 
+        markerTT3.bindPopup("<b>Cina</b><br><b>Social più utilizzato:</b> TikTok<br><b>Posizione nella top 3:</b> 3° (TikTok).");
+    </script>
+    
+
+    <div class="mb-4">
+        <h3>Utilizzo dei Social Media nel 2025</h3>
+        <div class="progress mb-3" role="progressbar">
+            <div class="progress-bar bg-success" style="width: 80%">Facebook 80%</div>
+        </div>
+        <div class="progress mb-3" role="progressbar">
+            <div class="progress-bar bg-info" style="width: 85%">Instagram 85%</div>
+        </div>
+        <div class="progress mb-3" role="progressbar">
+            <div class="progress-bar bg-warning" style="width: 90%">TikTok 90%</div>
+        </div>
+    </div>
+
+</div>
+
+
+
+    <div class="accordion mb-4" id="socialAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                    Vantaggi dei Social Network
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#socialAccordion">
+                <div class="accordion-body">
+                    <ul class="list-group">
+                        <li class="list-group-item">Connessione globale istantanea</li>
+                        <li class="list-group-item">Condivisione di conoscenze</li>
+                        <li class="list-group-item">Opportunità di business</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                    Svantaggi dei Social Network
+                </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#socialAccordion">
+                <div class="accordion-body">
+                    <ul class="list-group">
+                        <li class="list-group-item">Dipendenza digitale</li>
+                        <li class="list-group-item">Problemi di privacy</li>
+                        <li class="list-group-item">Cyberbullismo</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div id="data-analysis" class="container mt-5">
+    <h2 class="text-center mb-4">Analisi Interattiva dell'Utilizzo dei Social Media</h2>
+    <p class="text-center mb-4">Esplora l'andamento dell'uso di Facebook, Instagram e TikTok dal 2019 al 2025.</p>
+    
+  
+    <canvas id="socialChart" width="400" height="200"></canvas>
+</div>
+
+<script>
+    var ctx = document.getElementById('socialChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line',  
+        data: {
+            labels: ['2019', '2020', '2021', '2022', '2023', '2024', '2025'],  
+            datasets: [{
+                label: 'Utenti Facebook (in miliardi)',
+                data: [2, 2.3, 2.6, 2.8, 3, 3.2, 3.5],  
+                borderColor: 'rgba(0,123,255,1)',
+                fill: false
+            }, {
+                label: 'Utenti Instagram (in miliardi)',
+                data: [1.2, 1.5, 1.8, 2.1, 2.5, 2.8, 3],  
+                borderColor: 'rgba(255,99,132,1)',
+                fill: false
+            }, {
+                label: 'Utenti TikTok (in miliardi)',
+                data: [0.8, 1.2, 1.7, 2.2, 2.8, 3.4, 4],  
+                borderColor: 'rgba(255,159,64,1)',
+                fill: false
+            }]
+        }
+    });
+</script>
+
+
+
+
+    <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#home">Panoramica</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile">Statistiche</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#contact">Paesi</button>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="home">
+            <p>I social network hanno rivoluzionato il modo in cui comunichiamo e interagiamo...</p>
+        </div>
+        <div class="tab-pane fade" id="profile">
+            <p>Nel 2025, oltre 4.5 miliardi di persone utilizzano attivamente i social media...</p>
+        </div>
+        <div class="tab-pane fade" id="contact">
+            <p>I paesi che ne fanno più uso sono: I paesi europei, Stati Uniti e Cina.</p>
+        </div>
+    </div>
+
+    
+
+    
+</div>
+
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title" id="infoModalLabel">L'Era dei Social Media</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                I social network hanno trasformato radicalmente il modo in cui comunichiamo, permettendoci di rimanere connessi in tempo reale con persone di tutto il mondo. Hanno cambiato la nostra percezione delle relazioni, dell'informazione e dell'intrattenimento, influenzando ogni aspetto della vita quotidiana. Oggi, le piattaforme sociali non solo facilitano la comunicazione, ma sono diventate strumenti fondamentali per il business, la politica, e la cultura popolare. Tuttavia, questa connessione globale ha anche sollevato nuove sfide, come la gestione della privacy, la diffusione delle fake news, e il cambiamento delle dinamiche sociali e psicologiche. In questo scenario, è essenziale comprendere l'impatto profondo e le implicazioni dei social network per navigare consapevolmente il loro uso.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-facebook {
+        background-color: #1877F2;
+        color: white;
+    }
+    
+    .btn-instagram {
+        background-color: #E1306C;
+        color: white;
+    }
+    
+    .btn-x {
+        background-color: #000000;
+        color: white;
+    }
+</style>
+
+<div class="social-share text-center mb-4">
+    <h4>Condividi su:</h4>
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https://gabrielesavino.github.io/TPSIT/Bootstrap%202/" target="_blank" class="btn btn-facebook">Facebook</a>
+    <a href="https://www.instagram.com" target="_blank" class="btn btn-instagram">Instagram</a>
+    <a href="https://x.com/intent/tweet?url=https://gabrielesavino.github.io/TPSIT/Bootstrap%202/&text=Scopri%20l'impatto%20dei%20social%20media" target="_blank" class="btn btn-x">X</a>
+</div>
+
+
+
+<footer class="bg-dark text-light py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Social Impact</h5>
+                <p>Sito web creato da Gabriele Savino</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <a href="https://github.com/gabrielesavino/TPSIT/blob/main/Bootstrap%202/index.html" class="btn btn-primary">Codice su GitHub</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

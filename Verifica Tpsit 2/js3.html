@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS 3</title>
+    <style>
+        .aforisma {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #000000;
+            border-radius: 5px;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+        div {
+border-radius: 10px;
+border: 3px solid #000000;
+-webkit-box-shadow: 30px 25px 57px -15px rgba(0,0,0,0.68);
+-moz-box-shadow: 30px 25px 57px -15px rgba(0,0,0,0.68);
+box-shadow: 30px 25px 57px -15px rgba(0,0,0,0.68);
+}
+    </style>
+</head>
+<body style="background-color: lightgreen;">
+    <h1 style="font-family: Verdana, Geneva, Tahoma, sans-serif;">JS 3 "Aforismi di Scienziati"</h1>
+
+    <div class="aforisma">
+        <p id="aforisma1">"La scienza non è altro che un modo di pensarci." - Albert Einstein</p>
+        <button onclick="nascondiTesto('aforisma1')">Nascondi Testo</button>
+    </div>
+
+    <div class="aforisma">
+        <p id="aforisma2">"La natura non è mai stata così povera di sorprese." - Richard Feynman</p>
+        <button onclick="nascondiTesto('aforisma2')">Nascondi Testo</button>
+    </div>
+
+    <div class="aforisma">
+        <p id="aforisma3">"La scienza è un modo di organizzare il pensiero." - Edward O. Wilson</p>
+        <button onclick="nascondiTesto('aforisma3')">Nascondi Testo</button>
+    </div>
+
+    <div class="aforisma">
+        <p id="aforisma4">"La vera scoperta non consiste nel cercare nuovi territori, ma nell'avere nuovi occhi." - Marcel Proust</p>
+        <button onclick="nascondiTesto('aforisma4')">Nascondi Testo</button>
+    </div>
+
+    <div class="aforisma">
+        <p id="aforisma5">"L'ignoranza è la madre di tutti i mali." - Plinio il Vecchio</p>
+        <button onclick="nascondiTesto('aforisma5')">Nascondi Testo</button>
+    </div>
+
+    <script>
+        function nascondiTesto(id) {
+            const testo = document.getElementById(id);
+            testo.style.display = "none"; 
+        } 
+    </script>
+</body>
+</html>
