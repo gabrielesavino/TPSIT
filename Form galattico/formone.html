@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Cosmico Incredibile</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(18, 18, 18, 1) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Animazioni di stelle pazze e spazio */
+        .starry-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.9));
+            animation: starsExplosion 120s linear infinite;
+            z-index: -2;
+        }
+
+        @keyframes starsExplosion {
+            0% {
+                transform: translate(0, 0) scale(1);
+                background: rgba(0, 0, 0, 0.8);
+            }
+            50% {
+                transform: translate(200%, 200%) scale(1.2);
+                background: rgba(255, 255, 255, 0.2);
+            }
+            100% {
+                transform: translate(0, 0) scale(1);
+                background: rgba(0, 0, 0, 0.8);
+            }
+        }
+
+        /* Form galattico */
+        .form-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
+            backdrop-filter: blur(15px);
+            width: 400px;
+            color: white;
+            text-align: center;
+            transform: rotate(-3deg) scale(1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: formCosmicEffect 4s infinite alternate;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes formCosmicEffect {
+            0% {
+                transform: rotate(-3deg) scale(1);
+                box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            }
+            50% {
+                transform: rotate(3deg) scale(1.05);
+                box-shadow: 0 0 50px rgba(255, 0, 255, 0.5);
+            }
+            100% {
+                transform: rotate(-3deg) scale(1);
+                box-shadow: 0 0 70px rgba(0, 255, 255, 0.5);
+            }
+        }
+
+        h2 {
+            font-size: 3em;
+            margin-bottom: 30px;
+            color: #ff00ff;
+            text-shadow: 0 0 20px #00ffff, 0 0 40px #ff00ff, 0 0 60px #ff00ff;
+            animation: glowingText 1.5s infinite alternate;
+        }
+
+        @keyframes glowingText {
+            0% {
+                text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff, 0 0 30px #ff00ff;
+            }
+            50% {
+                text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff, 0 0 60px #ff00ff;
+            }
+            100% {
+                text-shadow: 0 0 30px #00ffff, 0 0 50px #ff00ff, 0 0 70px #ff00ff;
+            }
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .input-field:focus {
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+        }
+
+        .submit-button {
+            padding: 20px 30px;
+            background-color: #ff00ff;
+            color: white;
+            font-size: 1.5em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            width: 100%;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .submit-button:hover {
+            background-color: #00ffff;
+            transform: scale(1.1);
+        }
+
+        .submit-button:active {
+            background-color: #ff00ff;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .footer a {
+            color: #ff00ff;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .psychedelic-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ff6ec4);
+            animation: psychedelicEffect 4s infinite alternate;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        @keyframes psychedelicEffect {
+            0% {
+                transform: scale(1) rotate(0deg);
+                opacity: 0.3;
+            }
+            50% {
+                transform: scale(1.1) rotate(45deg);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(1) rotate(-45deg);
+                opacity: 0.3;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="starry-background"></div>
+    <div class="psychedelic-background"></div>
+    <div class="form-container">
+        <h2>Registrazione Cosmica</h2>
+        <input type="text" class="input-field" placeholder="Nome Completo" required>
+        <input type="email" class="input-field" placeholder="Email" required>
+        <input type="password" class="input-field" placeholder="Password" required>
+        <button class="submit-button" type="submit">Invia</button>
+        <div class="footer">
+            <p>Hai già un account? <a href="#">Accedi</a></p>
+        </div>
+    </div>
+</body>
+</html>

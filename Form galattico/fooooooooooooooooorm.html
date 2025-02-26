@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Freaky Portal</title>
+    <style>
+        /* Impostazioni base della pagina */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: #000;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            cursor: none; /* Nascondiamo il cursore per un effetto futuristico */
+        }
+
+        /* Effetto Starfield galattico che si muove */
+        .starry-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.9));
+            animation: starfield 120s linear infinite;
+            z-index: -2;
+        }
+
+        @keyframes starfield {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-200%, -200%) scale(1.2); }
+        }
+
+        /* Particelle spaziali che si muovono */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: url('https://www.transparenttextures.com/patterns/diamonds.png') repeat;
+            animation: particlesMovement 30s linear infinite;
+            z-index: -3;
+        }
+
+        @keyframes particlesMovement {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(100%, 100%); }
+        }
+
+        /* Form galattico ultra potente */
+        .form-container {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 60px;
+            border-radius: 30px;
+            box-shadow: 0 0 80px rgba(0, 255, 255, 0.7);
+            backdrop-filter: blur(25px);
+            width: 420px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            animation: form3DEffect 3s infinite alternate;
+        }
+
+        @keyframes form3DEffect {
+            0% {
+                transform: rotate(0deg) scale(1) translateZ(0px);
+                box-shadow: 0 0 40px rgba(0, 255, 255, 0.7);
+            }
+            50% {
+                transform: rotate(15deg) scale(1.05) translateZ(50px);
+                box-shadow: 0 0 60px rgba(255, 0, 255, 0.7);
+            }
+            100% {
+                transform: rotate(-15deg) scale(1.1) translateZ(-50px);
+                box-shadow: 0 0 80px rgba(0, 255, 255, 0.7);
+            }
+        }
+
+        /* Titolo con effetto luminoso */
+        h2 {
+            font-size: 4em;
+            margin-bottom: 20px;
+            color: #ff00ff;
+            text-shadow: 0 0 40px #ff00ff, 0 0 80px #ff00ff, 0 0 100px #00ffff;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { text-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff, 0 0 60px #ff00ff; }
+            50% { text-shadow: 0 0 40px #ff00ff, 0 0 60px #00ffff, 0 0 80px #ff00ff; }
+            100% { text-shadow: 0 0 60px #ff00ff, 0 0 80px #00ffff, 0 0 100px #ff00ff; }
+        }
+
+        /* Stile dei campi di input */
+        .input-field {
+            width: 100%;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1.5em;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .input-field:focus {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.7);
+        }
+
+        /* Pulsante di invio psichedelico */
+        .submit-button {
+            padding: 20px 30px;
+            background-color: #ff00ff;
+            color: white;
+            font-size: 1.5em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            width: 100%;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.5);
+        }
+
+        .submit-button:hover {
+            background-color: #00ffff;
+            transform: scale(1.2);
+        }
+
+        .submit-button:active {
+            background-color: #ff00ff;
+        }
+
+        /* Background psichedelico super potente */
+        .psychedelic-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #ff6ec4, #7873f5, #00ffff);
+            opacity: 0.2;
+            animation: psychedelic 5s infinite alternate;
+            z-index: -1;
+        }
+
+        @keyframes psychedelic {
+            0% { transform: rotate(0deg) scale(1); opacity: 0.2; }
+            50% { transform: rotate(45deg) scale(1.1); opacity: 0.4; }
+            100% { transform: rotate(90deg) scale(1); opacity: 0.2; }
+        }
+
+        /* Font di tipo glitch psichedelico */
+        .crazy-font {
+            font-size: 6em;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: white;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff, 0 0 40px #ff00ff;
+            animation: neonGlitch 2s infinite, explodeEffect 3s ease-out infinite, colorShift 5s linear infinite;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Effetto neon glitch */
+        @keyframes neonGlitch {
+            0% {
+                text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff, 0 0 40px #ff00ff;
+                transform: scale(1);
+            }
+            20% {
+                text-shadow: 0 0 15px #ff00ff, 0 0 25px #ff00ff, 0 0 35px #ff00ff, 0 0 50px #ff00ff;
+                transform: scale(1.1) rotate(2deg);
+            }
+            40% {
+                text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff, 0 0 40px #ff00ff;
+                transform: scale(1);
+            }
+            60% {
+                text-shadow: 0 0 25px #ff00ff, 0 0 35px #ff00ff, 0 0 45px #ff00ff, 0 0 55px #ff00ff;
+                transform: scale(1.2) rotate(-2deg);
+            }
+            80% {
+                text-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff, 0 0 40px #ff00ff, 0 0 60px #ff00ff;
+                transform: scale(1.1);
+            }
+            100% {
+                text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff, 0 0 40px #ff00ff;
+                transform: scale(1);
+            }
+        }
+
+        /* Esplosione effetto 3D */
+        @keyframes explodeEffect {
+            0% {
+                transform: scale(1);
+                color: #ff00ff;
+            }
+            50% {
+                transform: scale(1.3) rotate(5deg);
+                color: #00ffff;
+            }
+            100% {
+                transform: scale(1) rotate(-5deg);
+                color: #ff00ff;
+            }
+        }
+
+        /* Cambiamento psichedelico dei colori */
+        @keyframes colorShift {
+            0% { color: #ff00ff; }
+            25% { color: #ff6ec4; }
+            50% { color: #00ffff; }
+            75% { color: #ff00ff; }
+            100% { color: #ff6ec4; }
+        }
+
+        /* Interazioni futuristiche con il testo */
+        .crazy-font:hover {
+            text-shadow: 0 0 20px #ff00ff, 0 0 30px #ff00ff, 0 0 50px #ff00ff, 0 0 60px #ff00ff;
+            animation: neonGlitch 0.5s infinite, explodeEffect 1.5s ease-out infinite, colorShift 2s linear infinite;
+            transform: scale(1.2);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="crazy-font">
+        GALACTIC SUPER-PORTAL 🚀🔥
+    </div>
+
+    <div class="starry-background"></div>
+    <div class="particles"></div>
+    <div class="psychedelic-background"></div>
+    <div class="form-container">
+        <h2>Registrazione Cosmica</h2>
+        <input type="text" class="input-field" placeholder="Nome Completo" required>
+        <input type="email" class="input-field" placeholder="Email" required>
+        <input type="password" class="input-field" placeholder="Password" required>
+        <button class="submit-button" type="submit">Invia</button>
+        <div class="footer">
+            <p>Powered by Cosmic Energy</p>
+        </div>
+    </div>
+
+</body>
+</html>
