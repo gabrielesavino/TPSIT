@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portfolio di Gabriele Savino</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+      /* Impostazioni di base */
+      body {
+        background-color: #121212;
+        color: #fff;
+        font-family: Arial, sans-serif;
+      }
+      /* Navbar */
+      .navbar {
+        background-color: #1e1e1e;
+      }
+      .navbar-brand img {
+        border-radius: 50%;
+        margin-right: 10px;
+        transition: transform 0.3s ease;
+      }
+      .navbar-brand:hover img {
+        transform: rotate(360deg);
+      }
+      /* Dropdown styling */
+      .dropdown-menu {
+        background-color: #1e1e1e;
+      }
+      .dropdown-item {
+        color: #fff;
+      }
+      .dropdown-item:hover {
+        background-color: #333;
+      }
+      /* Hero Section */
+      .hero {
+        text-align: center;
+        padding: 60px 0;
+      }
+      .hero img {
+        width: 200px;
+        height: auto;
+        margin-bottom: 20px;
+        border-radius: 50%;
+        animation: fadeIn 2s ease-out;
+      }
+      .hero h1 {
+        font-size: 3rem;
+        color: #00bcd4;
+        margin-bottom: 20px;
+        animation: fadeIn 2s ease-out;
+      }
+      .hero p {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        animation: fadeIn 2s ease-out;
+      }
+      /* Cards dei progetti in evidenza */
+      .card {
+        background-color: #2c2c2c;
+        border: none;
+        border-radius: 10px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      }
+      .card-title {
+        color: #ffd700;
+      }
+      .card-text {
+        color: #ccc;
+      }
+      .price {
+        color: #ffd700;
+        font-weight: bold;
+      }
+      /* Icon styling in cards */
+      .card-icon {
+        font-size: 2rem;
+        color: #00bcd4;
+        margin-right: 10px;
+      }
+      /* Animazione Fade In */
+      @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(-20px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      /* Sezione Chi sono */
+      .about {
+        padding: 60px 0;
+      }
+      .about .card {
+        background-color: #1e1e1e;
+        border: none;
+      }
+      .about img {
+        border-radius: 50%;
+      }
+      /* Footer */
+      footer {
+        background-color: #1e1e1e;
+        padding: 20px 0;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <img src="./images/principale.png" alt="Immagine Principale" width="40" height="40">
+          Gabriele Savino
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+            <!-- Dropdown HTML -->
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="htmlDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                HTML
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="htmlDropdown">
+                <li><a class="dropdown-item" href="#">Progetto HTML 1</a></li>
+                <li><a class="dropdown-item" href="#">Progetto HTML 2</a></li>
+                <li><a class="dropdown-item" href="#">Progetto HTML 3</a></li>
+              </ul>
+            </li>
+            <!-- Dropdown CSS -->
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="cssDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                CSS
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="cssDropdown">
+                <li><a class="dropdown-item" href="#">Progetto CSS 1</a></li>
+                <li><a class="dropdown-item" href="#">Progetto CSS 2</a></li>
+                <li><a class="dropdown-item" href="#">Progetto CSS 3</a></li>
+              </ul>
+            </li>
+            <!-- Dropdown JavaScript -->
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="jsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                JavaScript
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="jsDropdown">
+                <li><a class="dropdown-item" href="#">Progetto JS 1</a></li>
+                <li><a class="dropdown-item" href="#">Progetto JS 2</a></li>
+                <li><a class="dropdown-item" href="#">Progetto JS 3</a></li>
+              </ul>
+            </li>
+            <!-- Dropdown Bootstrap -->
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="bootstrapDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Bootstrap
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="bootstrapDropdown">
+                <li><a class="dropdown-item" href="#">Progetto Bootstrap 1</a></li>
+                <li><a class="dropdown-item" href="#">Progetto Bootstrap 2</a></li>
+                <li><a class="dropdown-item" href="#">Progetto Bootstrap 3</a></li>
+              </ul>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="#about">Chi sono</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://github.com/gabrielesavino" target="_blank">
+                <i class="fab fa-github"></i> GitHub
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <img src="./images/principale.png" alt="Immagine Principale">
+        <h1>Gabriele Savino</h1>
+        <p>Benvenuti nel mio angolo digitale! Scopri i miei progetti.</p>
+        <a href="#projects" class="btn btn-primary">Progetti in evidenza</a>
+        <a href="#about" class="btn btn-secondary">Chi sono</a>
+      </div>
+    </section>
+    
+    <!-- Sezione Progetti in evidenza -->
+    <section id="projects" class="py-5">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2>Progetti in evidenza</h2>
+          <p class="text-muted">Una selezione dei miei lavori più rappresentativi</p>
+        </div>
+        <div class="row g-4">
+          <!-- Card Progetto 1 -->
+          <div class="col-md-4">
+            <div class="card h-100">
+              <img src="./images/morra.png" class="card-img-top" alt="Social Impact">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                  <i class="fas fa-chart-line card-icon"></i>
+                  <h5 class="card-title mb-0">Social Impact</h5>
+                </div>
+                <p class="card-text">Una pagina web divulgativa sui social network e la loro influenza nella vita di tutti i giorni.</p>
+                <p class="price">Creato nel 2025</p>
+                <a href="https://gabrielesavino.github.io/TPSIT/gioco%20morra/" class="btn btn-primary mt-auto" target="_blank">
+                  <i class="fas fa-arrow-right me-2"></i>Apri
+                </a>
+              </div>
+            </div>
+          </div>
+          <!-- Card Progetto 2 -->
+          <div class="col-md-4">
+            <div class="card h-100">
+              <img src="./images/freakymemory.png" class="card-img-top" alt="Freaky Memory">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                  <i class="fas fa-gamepad card-icon"></i>
+                  <h5 class="card-title mb-0">Freaky Memory</h5>
+                </div>
+                <p class="card-text">Un simpatico gioco di memoria in cui l'utente deve riprodurre una sequenza crescente di pulsanti illuminati.</p>
+                <p class="price">Creato nel 2025</p>
+                <a href="https://gabrielesavino.github.io/TPSIT/Freaky%20Memory%201/" class="btn btn-primary mt-auto" target="_blank">
+                  <i class="fas fa-play me-2"></i>Gioca
+                </a>
+              </div>
+            </div>
+          </div>
+          <!-- Card Progetto 3 -->
+          <div class="col-md-4">
+            <div class="card h-100">
+              <img src="./images/genfrascas.png" class="card-img-top" alt="Temporizzatore con Array">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                  <i class="fas fa-clock card-icon"></i>
+                  <h5 class="card-title mb-0">Generatore di frasi casuali</h5>
+                </div>
+                <p class="card-text">Genera combinazioni di parole casuali in base ad un input dato dall'utente.</p>
+                <p class="price">Creato nel 2025</p>
+                <a href="https://gabrielesavino.github.io/TPSIT/generatore%20numeri%20casuali/" class="btn btn-primary mt-auto" target="_blank">
+                  <i class="fas fa-arrow-right me-2"></i>Apri
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Sezione Chi sono -->
+    <section id="about" class="about">
+      <div class="container">
+        <div class="card bg-dark text-light p-4">
+          <div class="row g-0 align-items-center">
+            <div class="col-md-4 text-center">
+              <img src="./images/principale.png" alt="Gabriele Savino" class="img-fluid rounded-circle p-3">
+            </div>
+            <div class="col-md-8">
+              <div class="card-body">
+                <h3 class="card-title">Chi sono</h3>
+                <p class="card-text">Sono Gabriele Savino, uno sviluppatore appassionato con una forte dedizione al coding e alla tecnologia. Ho realizzato vari progetti che spaziano dal web development a giochi interattivi.</p>
+                <p class="card-text">Amo imparare e sperimentare nuove idee per offrire soluzioni innovative.</p>
+                <a href="https://github.com/gabrielesavino" class="btn btn-primary" target="_blank">
+                  <i class="fab fa-github me-2"></i>Visita GitHub
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <img src="./images/principale.png" alt="Immagine Principale" style="width: 80px;">
+        <p class="mt-3">&copy; 2025 Gabriele Savino. Tutti i diritti riservati.</p>
+      </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
