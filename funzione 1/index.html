@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Funzione di Attivazione Neuronale</title>
+    <script>
+      function calculateOutputs(event) {
+        event.preventDefault();
+
+        var a = parseFloat(document.getElementById("inputA").value);
+        var b = parseFloat(document.getElementById("inputB").value);
+        var c = parseFloat(document.getElementById("inputC").value);
+        var d = parseFloat(document.getElementById("inputD").value);
+
+        var sum = a + b + c + d;
+
+        var reluOutput = Math.max(0, sum);
+
+        var sigmoidOutput = 1 / (1 + Math.exp(-reluOutput));
+
+        document.getElementById("output1").innerText = "Output 1 (ReLU): " + reluOutput;
+        document.getElementById("output2").innerText = "Output 2 (Sigmoide): " + sigmoidOutput.toFixed(4);
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Funzione di Attivazione Neuronale</h1>
+    <form id="activationForm" onsubmit="calculateOutputs(event)">
+      <label for="inputA">Input A:</label>
+      <input type="number" id="inputA" name="inputA" required /><br /><br />
+
+      <label for="inputB">Input B:</label>
+      <input type="number" id="inputB" name="inputB" required /><br /><br />
+
+      <label for="inputC">Input C:</label>
+      <input type="number" id="inputC" name="inputC" required /><br /><br />
+
+      <label for="inputD">Input D:</label>
+      <input type="number" id="inputD" name="inputD" required /><br /><br />
+
+      <button type="submit">Calcola</button>
+    </form>
+
+    <p id="output1"></p>
+    <p id="output2"></p>
+
+    <!--
+Spiegazione della formula scelta e del codice:
+
+Somma degli input: La funzione prende i quattro numeri che inseriamo (a, b, c, d) e li somma insieme. Questo ci dà un solo numero, che è la combinazione di tutti gli input. In pratica, stiamo facendo qualcosa di simile a quello che succede quando un neurone in una rete neurale calcola il suo potenziale di attivazione.
+
+Funzione ReLU (Rectified Linear Unit): Dopo aver somma tutti i numeri, applico la funzione ReLU. Se la somma è negativa o zero, allora la ReLU restituisce 0. Se la somma è positiva, la ReLU restituisce la somma stessa. Questa funzione serve a rendere il modello più interessante, perché cambia la linearità e aiuta a evitare un problema che potrebbe far perdere informazioni nel calcolo.
+
+Funzione Sigmoide: Poi prendo il risultato che viene fuori dalla ReLU e lo passo alla funzione sigmoide. Questa mappa il risultato in un valore che va da 0 a 1, che può essere interpretato come una probabilità. La formula che usa la sigmoide è 1 / (1 + e^(-x)), dove x è il risultato che arriva dalla ReLU. Così facendo, il numero che otteniamo ha sempre un valore che rimane dentro a questo range.
+
+Utilizzo del form e della funzione:
+
+Il form HTML che abbiamo fa da "input" per i numeri che mettiamo (a, b, c, d).
+
+Quando premiamo "Calcola", la funzione calculateOutputs viene chiamata, facendo il calcolo matematico e mostrando i risultati nella pagina.
+
+In pratica, cambiando le operazioni matematiche o usando altre funzioni di attivazione, possiamo vedere diversi comportamenti nel risultato, proprio come succede in una rete neurale che impara in base ai dati che gli diamo.
+    -->
+  </body>
+</html>
