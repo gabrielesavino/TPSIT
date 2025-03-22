@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form di Input</title>
+</head>
+<body>
+    <h1>Form di Input</h1>
+    <form id="form">
+        <label for="inputA">Stringa A:</label>
+        <input type="text" id="inputA">
+        <br>
+        <label for="inputB">Stringa B:</label>
+        <input type="text" id="inputB">
+        <br><br>
+        <button type="submit">Calcola</button>
+    </form>
+    
+    <h2>Risultati:</h2>
+    <div id="output">
+        <p id="lengthA"></p>
+        <p id="reverseA"></p>
+        <p id="concat"></p>
+        <p id="sumLength"></p>
+    </div>
+
+    <script>
+        // Funzione che calcola la lunghezza di una stringa
+        function calcolaLunghezza(str) {
+            return str.length;
+        }
+
+        // Funzione che restituisce la stringa al contrario
+        function stringaAlContrario(str) {
+            return str.split('').reverse().join('');
+        }
+
+        // Funzione che unisce due stringhe
+        function unisciStringhe(str1, str2) {
+            return str1 + str2;
+        }
+
+        // Funzione che calcola la somma delle lunghezze delle stringhe e controlla la lunghezza di b
+        function calcolaSommaLunghezze(str1, str2) {
+            const lunghezzaA = str1.length;
+            const lunghezzaB = str2.length;
+            const somma = lunghezzaA + lunghezzaB;
+            const messaggio = lunghezzaB > 20 ? "b troppo lunga" : "";
+            return { somma, messaggio };
+        }
+
+        // Aggiungi un event listener per il submit del form
+        document.getElementById('form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Impedisce il refresh della pagina
+
+            // Ottieni i valori dagli input
+            const inputA = document.getElementById('inputA').value;
+            const inputB = document.getElementById('inputB').value;
+
+            // Calcola i risultati
+            const lunghezzaA = calcolaLunghezza(inputA);
+            const lunghezzaB = calcolaLunghezza(inputB);
+            const reverseA = stringaAlContrario(inputA);
+            const concatenazione = unisciStringhe(inputA, inputB);
+            const { somma, messaggio } = calcolaSommaLunghezze(inputA, inputB);
+
+            // Aggiorna il DOM con i risultati
+            document.getElementById('lengthA').textContent = `Lunghezza A: ${lunghezzaA}`;
+            document.getElementById('reverseA').textContent = `Stringa A al contrario: ${reverseA}`;
+            document.getElementById('concat').textContent = `Concatenazione: ${concatenazione}`;
+            document.getElementById('sumLength').textContent = `Somma delle lunghezze: ${somma} ${messaggio}`;
+        });
+    </script>
+</body>
+</html>
