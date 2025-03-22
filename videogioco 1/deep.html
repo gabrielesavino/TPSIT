@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Speed Click Challenge</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .game-area {
+            height: 70vh;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.5s;
+        }
+        
+        .target {
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s, opacity 0.5s;
+            box-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+
+        .bonus {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        #progress {
+            height: 10px;
+            transition: width 0.5s;
+        }
+    </style>
+</head>
+<body class="bg-dark text-light">
+    <!-- Schermata iniziale -->
+    <div id="startScreen" class="container text-center py-5">
+        <h1 class="mb-4">Speed Click Challenge</h1>
+        <form id="playerForm" class="mb-4">
+            <div class="mb-3">
+                <input type="text" class="form-control" placeholder="Nome" required>
+            </div>
+            <div class="mb-3">
+                <input type="email" class="form-control" placeholder="Email" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Inizia!</button>
+        </form>
+    </div>
+
+    <!-- Area di gioco -->
+    <div id="gameScreen" class="container d-none">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h3>Livello: <span id="currentLevel">1</span></h3>
+                <div class="progress bg-secondary mb-3">
+                    <div id="progress" class="progress-bar bg-success" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="game-area bg-secondary" id="gameArea"></div>
+    </div>
+
+    <!-- Risultati -->
+    <div id="resultScreen" class="container d-none text-center py-5">
+        <h2 class="mb-4">Risultati</h2>
+        <div id="results"></div>
+        <button class="btn btn-warning mt-4" onclick="location.reload()">Rigioca</button>
+    </div>
+
+<script>
+const levels = [
+    { size: 80, timeout: 2000, delay: 1000 }, // Livello 1
+    { size: 60, timeout: 1500, delay: 800 },  // Livello 2
+    { size: 40, timeout: 1000, delay: 600 },  // Livello 3
+    { size: 30, timeout: 800, delay: 400 },   // Livello 4
+    { size: 20, timeout: 600, delay: 200 }    // Livello 5
+];
+
+let clickTimes = [];
+let currentLevel = 0;
+let startTime;
+let timeoutId;
+let bonusCount = 0;
+
+document.getElementById('playerForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    document.getElementById('startScreen').classList.add('d-none');
+    document.getElementById('gameScreen').classList.remove('d-none');
+    startGame();
+});
+
+function startGame() {
+    startTime = Date.now();
+    createTarget();
+    updateProgress();
+}
+
+function createTarget() {
+    const level = levels[currentLevel];
+    const gameArea = document.getElementById('gameArea');
+    gameArea.innerHTML = '';
+    
+    const target = document.createElement('div');
+    target.className = 'target';
+    target.style.width = target.style.height = level.size + 'px';
+    target.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 50%)`;
+    target.style.left = Math.random() * (gameArea.offsetWidth - level.size) + 'px';
+    target.style.top = Math.random() * (gameArea.offsetHeight - level.size) + 'px';
+    
+    // Bonus casuale
+    if(Math.random() < 0.1) {
+        target.classList.add('bonus');
+        target.dataset.bonus = "true";
+    }
+
+    target.addEventListener('click', handleClick);
+    gameArea.appendChild(target);
+
+    timeoutId = setTimeout(() => {
+        target.style.opacity = '0';
+        setTimeout(() => gameArea.removeChild(target), 500);
+    }, level.timeout);
+}
+
+function handleClick(e) {
+    const clickTime = Date.now();
+    const reactionTime = clickTimes.length > 0 ? clickTime - clickTimes[clickTimes.length - 1] : clickTime - startTime;
+    
+    if(e.target.dataset.bonus) {
+        bonusCount++;
+        clickTimes.push(reactionTime - 200); // Bonus -200ms
+    } else {
+        clickTimes.push(reactionTime);
+    }
+
+    clearTimeout(timeoutId);
+    updateProgress();
+
+    if(clickTimes.length === 10) {
+        endGame();
+        return;
+    }
+
+    if(clickTimes.length % 2 === 0) {
+        currentLevel = Math.min(levels.length - 1, currentLevel + 1);
+        document.getElementById('currentLevel').textContent = currentLevel + 1;
+        document.getElementById('gameArea').style.background = `hsl(${Math.random() * 360}, 50%, 20%)`;
+    }
+
+    setTimeout(createTarget, levels[currentLevel].delay);
+}
+
+function updateProgress() {
+    const progress = (clickTimes.length / 10) * 100;
+    document.getElementById('progress').style.width = progress + '%';
+}
+
+function endGame() {
+    document.getElementById('gameScreen').classList.add('d-none');
+    document.getElementById('resultScreen').classList.remove('d-none');
+    
+    const totalTime = clickTimes.reduce((a, b) => a + b, 0);
+    const averageTime = totalTime / 10;
+    
+    const resultsHTML = `
+        <p>Tempo totale: ${totalTime}ms</p>
+        <p>Media tempi: ${averageTime.toFixed(1)}ms</p>
+        <p>Bonus ottenuti: ${bonusCount}</p>
+        <p>Livello raggiunto: ${currentLevel + 1}</p>
+    `;
+    
+    document.getElementById('results').innerHTML = resultsHTML;
+    
+    // Salvataggio dati
+    const formData = new FormData(document.getElementById('playerForm'));
+    const playerData = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        totalTime: totalTime,
+        date: new Date().toLocaleString()
+    };
+    localStorage.setItem('playerStats', JSON.stringify(playerData));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gioco di Reazione - Click Challenge</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        overflow-x: hidden;
+      }
+      .game-area {
+        position: relative;
+        width: 100%;
+        height: 80vh;
+        margin: 20px 0;
+      }
+      .target {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      /* Schermate nascoste */
+      .screen {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Schermata di inizio: Inserimento dati -->
+    <div id="startScreen" class="container screen" style="display: block;">
+      <h1 class="mt-4">Click Challenge</h1>
+      <p>Inserisci i tuoi dati per iniziare:</p>
+      <form id="playerForm">
+        <div class="form-group">
+          <label for="playerName">Nome</label>
+          <input type="text" class="form-control" id="playerName" required />
+        </div>
+        <div class="form-group">
+          <label for="playerEmail">Email</label>
+          <input type="email" class="form-control" id="playerEmail" required />
+        </div>
+        <div class="form-group">
+          <label for="bgColor">Colore di sfondo</label>
+          <input type="color" class="form-control" id="bgColor" value="#282c34" required />
+        </div>
+        <div class="form-group">
+          <label for="targetColor">Colore del punto</label>
+          <input type="color" class="form-control" id="targetColor" value="#ffffff" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Inizia il Gioco</button>
+      </form>
+    </div>
+
+    <!-- Schermata di gioco -->
+    <div id="gameScreen" class="container screen">
+      <h2 class="mt-4">Livello: <span id="levelDisplay">1</span></h2>
+      <p>Clicca il punto luminoso non appena compare!</p>
+      <div class="game-area border" id="gameArea"></div>
+      <p class="mt-3">
+        Click effettuati in questo livello: <span id="clickCount">0</span>/10
+      </p>
+      <p>Tempo di reazione medio in questo livello: <span id="levelAvgTime">0</span> ms</p>
+    </div>
+
+    <!-- Schermata dei risultati finali -->
+    <div id="resultScreen" class="container screen">
+      <h2 class="mt-4">Risultati Finali</h2>
+      <p><strong>Nome:</strong> <span id="resultName"></span></p>
+      <p><strong>Email:</strong> <span id="resultEmail"></span></p>
+      <h4>Statistiche per Livello:</h4>
+      <div id="levelResults"></div>
+      <h4>Statistiche Totali:</h4>
+      <p><strong>Tempo Totale:</strong> <span id="totalTime"></span> ms</p>
+      <p><strong>Tempo Medio Complessivo:</strong> <span id="overallAvg"></span> ms</p>
+      <button class="btn btn-success" onclick="location.reload()">Gioca di nuovo</button>
+    </div>
+
+    <!-- Bootstrap JS, Popper.js e jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script>
+      // Variabili globali
+      let player = {};
+      const totalLevels = 5;
+      const clicksPerLevel = 10;
+      let currentLevel = 1;
+      let currentClick = 0;
+      let reactionTimes = []; // raccoglie i tempi per il livello corrente
+      let allLevelsData = []; // per memorizzare i dati di ogni livello
+      let pointAppearTime = 0;
+      let disappearTimeout; // per gestire la scomparsa automatica del punto
+
+      // Parametri per ogni livello: [minDelay, maxDelay, targetVisibleTime]
+      const levelSettings = {
+        1: { minDelay: 1000, maxDelay: 2000, visibleTime: 1500 },
+        2: { minDelay: 800, maxDelay: 1500, visibleTime: 1300 },
+        3: { minDelay: 600, maxDelay: 1300, visibleTime: 1100 },
+        4: { minDelay: 400, maxDelay: 1000, visibleTime: 900 },
+        5: { minDelay: 300, maxDelay: 800, visibleTime: 700 }
+      };
+
+      const startScreen = document.getElementById("startScreen");
+      const gameScreen = document.getElementById("gameScreen");
+      const resultScreen = document.getElementById("resultScreen");
+      const gameArea = document.getElementById("gameArea");
+      const levelDisplay = document.getElementById("levelDisplay");
+      const clickCountDisplay = document.getElementById("clickCount");
+      const levelAvgDisplay = document.getElementById("levelAvgTime");
+
+      // Gestione del form iniziale
+      document.getElementById("playerForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        player.name = document.getElementById("playerName").value;
+        player.email = document.getElementById("playerEmail").value;
+        const bgColor = document.getElementById("bgColor").value;
+        const targetColor = document.getElementById("targetColor").value;
+
+        // Imposta il colore di sfondo della game area
+        gameArea.style.backgroundColor = bgColor;
+        // Salva il colore del target nel player (lo useremo durante il gioco)
+        player.targetColor = targetColor;
+        // Passa alla schermata di gioco
+        startScreen.style.display = "none";
+        gameScreen.style.display = "block";
+        startLevel();
+      });
+
+      // Avvia il livello corrente
+      function startLevel() {
+        currentClick = 0;
+        reactionTimes = [];
+        levelDisplay.innerText = currentLevel;
+        clickCountDisplay.innerText = currentClick;
+        levelAvgDisplay.innerText = "0";
+        // Avvia il primo target del livello
+        scheduleNextTarget();
+      }
+
+      // Pianifica la comparsa del prossimo target in base al livello
+      function scheduleNextTarget() {
+        const settings = levelSettings[currentLevel];
+        const delay = randomBetween(settings.minDelay, settings.maxDelay);
+        setTimeout(showTarget, delay);
+      }
+
+      // Mostra il target (punto) in una posizione casuale
+      function showTarget() {
+        // Rimuovo eventuali target esistenti
+        gameArea.innerHTML = "";
+
+        // Creazione del target
+        const target = document.createElement("div");
+        target.classList.add("target");
+        target.style.backgroundColor = player.targetColor;
+        // Posizione casuale all'interno della game area
+        const areaRect = gameArea.getBoundingClientRect();
+        const maxX = areaRect.width - 30;
+        const maxY = areaRect.height - 30;
+        const posX = randomBetween(0, maxX);
+        const posY = randomBetween(0, maxY);
+        target.style.left = posX + "px";
+        target.style.top = posY + "px";
+
+        // Registra il tempo in cui il target compare
+        pointAppearTime = new Date().getTime();
+
+        // Gestione click sul target
+        target.addEventListener("click", function() {
+          // Calcola il tempo di reazione
+          const clickTime = new Date().getTime();
+          const reactionTime = clickTime - pointAppearTime;
+          reactionTimes.push(reactionTime);
+          currentClick++;
+          clickCountDisplay.innerText = currentClick;
+          // Rimuovo il target e annullo il timeout
+          clearTimeout(disappearTimeout);
+          gameArea.innerHTML = "";
+
+          // Se il livello non è completato, pianifico il prossimo target
+          if (currentClick < clicksPerLevel) {
+            scheduleNextTarget();
+          } else {
+            // Salva i dati del livello e passa al successivo
+            allLevelsData.push({
+              level: currentLevel,
+              reactionTimes: reactionTimes,
+              levelTotal: reactionTimes.reduce((a, b) => a + b, 0),
+              levelAvg: Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)
+            });
+            // Se ci sono altri livelli, avvia il prossimo
+            if (currentLevel < totalLevels) {
+              currentLevel++;
+              scheduleNextLevel();
+            } else {
+              // Gioco finito, mostra risultati
+              showResults();
+            }
+          }
+        });
+
+        gameArea.appendChild(target);
+
+        // Imposta il tempo massimo in cui il target rimane visibile
+        const settings = levelSettings[currentLevel];
+        disappearTimeout = setTimeout(function() {
+          // Se il target non è stato cliccato, lo rimuovo e considero il tempo come il tempo massimo
+          if (gameArea.contains(target)) {
+            const clickTime = new Date().getTime();
+            const reactionTime = settings.visibleTime; // tempo massimo
+            reactionTimes.push(reactionTime);
+            currentClick++;
+            clickCountDisplay.innerText = currentClick;
+            gameArea.innerHTML = "";
+            if (currentClick < clicksPerLevel) {
+              scheduleNextTarget();
+            } else {
+              allLevelsData.push({
+                level: currentLevel,
+                reactionTimes: reactionTimes,
+                levelTotal: reactionTimes.reduce((a, b) => a + b, 0),
+                levelAvg: Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)
+              });
+              if (currentLevel < totalLevels) {
+                currentLevel++;
+                scheduleNextLevel();
+              } else {
+                showResults();
+              }
+            }
+          }
+        }, settings.visibleTime);
+      }
+
+      // Pianifica l'avvio del livello successivo dopo 1 secondo
+      function scheduleNextLevel() {
+        gameArea.innerHTML = "";
+        setTimeout(startLevel, 1000);
+      }
+
+      // Visualizza la schermata dei risultati finali
+      function showResults() {
+        gameScreen.style.display = "none";
+        resultScreen.style.display = "block";
+
+        // Visualizza nome e email
+        document.getElementById("resultName").innerText = player.name;
+        document.getElementById("resultEmail").innerText = player.email;
+
+        // Mostra i dati per ogni livello
+        let levelResultsHTML = "";
+        let totalOverallTime = 0;
+        let totalClicks = 0;
+        allLevelsData.forEach(levelData => {
+          levelResultsHTML += `<p><strong>Livello ${levelData.level}</strong>: Tempo totale = ${levelData.levelTotal} ms, Tempo medio = ${levelData.levelAvg} ms</p>`;
+          totalOverallTime += levelData.levelTotal;
+          totalClicks += levelData.reactionTimes.length;
+        });
+        document.getElementById("levelResults").innerHTML = levelResultsHTML;
+        document.getElementById("totalTime").innerText = totalOverallTime;
+        document.getElementById("overallAvg").innerText = Math.round(totalOverallTime / totalClicks);
+      }
+
+      // Funzione di utilità per generare numeri casuali tra min e max
+      function randomBetween(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+    </script>
+  </body>
+</html>
