@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Freaky SpeedClick</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #121212;
+      color: #f8f9fa;
+    }
+    .card-custom {
+      background-color: #1e1e1e; /* Grigio scuro per il form */
+      border: none;
+    }
+    /* Stile per testi, etichette, pulsanti e input all'interno della card */
+    .card-custom .card-title,
+    .card-custom label,
+    .card-custom .btn {
+      color: #f8f9fa;
+    }
+    .card-custom .form-label {
+      text-align: left !important;
+    }
+    /* Imposta lo sfondo scuro e il colore del testo per gli input */
+    .card-custom input.form-control {
+      background-color: #333;
+      color: #f8f9fa;
+      border: 1px solid #444;
+    }
+    .game-area {
+      height: 70vh;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.5s;
+      border: 2px solid #343a40;
+      border-radius: 5px;
+    }
+    .target {
+      position: absolute;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s, opacity 0.5s;
+      box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    }
+    .bonus {
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    #progress {
+      height: 10px;
+      transition: width 0.5s;
+    }
+  </style>
+</head>
+<body>
+  <!-- Schermata Iniziale -->
+  <div id="startScreen" class="container text-center py-5">
+    <div class="card card-custom mx-auto" style="max-width: 400px;">
+      <div class="card-body">
+        <h1 class="card-title mb-4">Freaky SpeedClick</h1>
+        <form id="playerForm">
+          <div class="mb-3">
+            <input type="text" class="form-control" id="playerName" name="name" placeholder="Nome" required>
+          </div>
+          <div class="mb-3">
+            <input type="email" class="form-control" id="playerEmail" name="email" placeholder="Email" required>
+          </div>
+          <div class="mb-3 text-start">
+            <label class="form-label">Colore di Sfondo</label>
+            <input type="color" class="form-control form-control-color" id="bgColor" value="#282c34" title="Scegli il colore di sfondo" required>
+          </div>
+          <div class="mb-3 text-start">
+            <label class="form-label">Colore del Punto</label>
+            <input type="color" class="form-control form-control-color" id="targetColor" value="#ffffff" title="Scegli il colore del punto" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Inizia!</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schermata di Gioco -->
+  <div id="gameScreen" class="container d-none">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h3>Livello: <span id="currentLevel">1</span></h3>
+        <div class="progress bg-secondary mb-3">
+          <div id="progress" class="progress-bar bg-success" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="game-area" id="gameArea"></div>
+  </div>
+
+  <!-- Schermata dei Risultati -->
+  <div id="resultScreen" class="container d-none text-center py-5">
+    <h2 class="mb-4">Risultati</h2>
+    <div id="results"></div>
+    <p class="mt-4">
+      Questo gioco è stato creato da Gabriele Savino | 
+      <a href="https://github.com/gabrielesavino/tpsit/Freaky%20SpeedClick/" target="_blank" class="text-decoration-none text-info">Codice in GitHub</a>
+    </p>
+    <button class="btn btn-warning mt-4" onclick="location.reload()">Rigioca</button>
+  </div>
+
+  <!-- Bootstrap JS, Popper e jQuery -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Impostazioni di gioco per ciascun livello: dimensione target, tempo massimo in cui resta visibile e delay per il nuovo target
+    const levels = [
+      { size: 80, timeout: 2000, delay: 1000 }, // Livello 1
+      { size: 60, timeout: 1500, delay: 800 },  // Livello 2
+      { size: 40, timeout: 1000, delay: 600 },  // Livello 3
+      { size: 30, timeout: 800, delay: 400 },   // Livello 4
+      { size: 20, timeout: 600, delay: 200 }    // Livello 5
+    ];
+
+    const gameDuration = 20000; // Durata del gioco in millisecondi (20 secondi)
+    let clickTimes = [];        // Array che memorizza i tempi di reazione
+    let currentLevel = 0;       // Indice dell'array levels (0 = Livello 1)
+    let startTime;              // Tempo d'inizio del gioco
+    let timeoutId;              // Id per il timeout del target
+    let bonusCount = 0;         // Numero di bonus ottenuti
+    let gameTimer;              // Timer per la durata del gioco
+    let progressInterval;       // Intervallo per aggiornare la progress bar
+
+    // Elementi DOM
+    const startScreen = document.getElementById('startScreen');
+    const gameScreen = document.getElementById('gameScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const gameArea = document.getElementById('gameArea');
+    const currentLevelDisplay = document.getElementById('currentLevel');
+    const progressBar = document.getElementById('progress');
+
+    // Dati del giocatore
+    const player = {};
+
+    // Gestione del form di inizio
+    document.getElementById('playerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      player.name = document.getElementById('playerName').value;
+      player.email = document.getElementById('playerEmail').value;
+      player.bgColor = document.getElementById('bgColor').value;
+      player.targetColor = document.getElementById('targetColor').value;
+      // Passa alla schermata di gioco
+      startScreen.classList.add('d-none');
+      gameScreen.classList.remove('d-none');
+      // Imposta il colore di sfondo della game area
+      gameArea.style.backgroundColor = player.bgColor;
+      startGame();
+    });
+
+    function startGame() {
+      startTime = Date.now();
+      // Avvia un timer che terminerà il gioco dopo 20 secondi
+      gameTimer = setTimeout(endGame, gameDuration);
+      // Avvia l'aggiornamento della progress bar basata sul tempo trascorso
+      progressInterval = setInterval(updateProgress, 100);
+      createTarget();
+    }
+
+    // Funzione per creare il target
+    function createTarget() {
+      // Se il tempo di gioco è scaduto, non creare nuovi target
+      if (Date.now() - startTime >= gameDuration) return;
+
+      const level = levels[currentLevel];
+      gameArea.innerHTML = ''; // Rimuove eventuali target esistenti
+
+      const target = document.createElement('div');
+      target.className = 'target';
+      target.style.width = target.style.height = level.size + 'px';
+      target.style.backgroundColor = player.targetColor || `hsl(${Math.random() * 360}, 70%, 50%)`;
+      // Posiziona il target in una posizione casuale
+      const maxX = gameArea.offsetWidth - level.size;
+      const maxY = gameArea.offsetHeight - level.size;
+      target.style.left = Math.random() * maxX + 'px';
+      target.style.top = Math.random() * maxY + 'px';
+
+      // Bonus: con probabilità del 10% il target diventa "bonus"
+      if (Math.random() < 0.1) {
+        target.classList.add('bonus');
+        target.dataset.bonus = "true";
+      }
+
+      // Registra il tempo in cui il target compare
+      target.dataset.appearTime = Date.now();
+
+      // Aggiunge il listener per il click sul target
+      target.addEventListener('click', handleClick);
+      gameArea.appendChild(target);
+
+      // Imposta il timeout per la scomparsa automatica del target
+      timeoutId = setTimeout(() => {
+        target.style.opacity = '0';
+        setTimeout(() => {
+          if (gameArea.contains(target)) {
+            gameArea.removeChild(target);
+            recordClick(level.timeout); // Registra il tempo massimo (timeout) come reazione
+            nextTarget();
+          }
+        }, 500);
+      }, level.timeout);
+    }
+
+    // Funzione per gestire il click sul target
+    function handleClick(e) {
+      const clickTime = Date.now();
+      const appearTime = parseInt(e.target.dataset.appearTime);
+      let reactionTime = clickTime - appearTime;
+      // Se è un bonus, sottrai 200ms al tempo di reazione
+      if (e.target.dataset.bonus) {
+        bonusCount++;
+        reactionTime = Math.max(0, reactionTime - 200);
+      }
+      recordClick(reactionTime);
+      clearTimeout(timeoutId);
+      gameArea.innerHTML = '';
+      nextTarget();
+    }
+
+    // Registra il tempo di reazione
+    function recordClick(time) {
+      clickTimes.push(time);
+    }
+
+    // Pianifica la creazione del nuovo target e gestisce il passaggio di livello
+    function nextTarget() {
+      // Se il gioco è ancora in corso, pianifica il prossimo target
+      if (Date.now() - startTime < gameDuration) {
+        // Incrementa il livello ogni 2 click (fino al massimo livello 5)
+        if (clickTimes.length % 2 === 0) {
+          currentLevel = Math.min(levels.length - 1, currentLevel + 1);
+          currentLevelDisplay.textContent = currentLevel + 1;
+          // Modifica dinamicamente lo sfondo della game area
+          gameArea.style.backgroundColor = `hsl(${Math.random() * 360}, 50%, 20%)`;
+        }
+        setTimeout(createTarget, levels[currentLevel].delay);
+      }
+    }
+
+    // Aggiorna la progress bar in base al tempo trascorso
+    function updateProgress() {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min((elapsed / gameDuration) * 100, 100);
+      progressBar.style.width = progress + '%';
+    }
+
+    // Mostra la schermata dei risultati finali e interrompe il gioco
+    function endGame() {
+      clearInterval(progressInterval);
+      clearTimeout(timeoutId);
+      gameScreen.classList.add('d-none');
+      resultScreen.classList.remove('d-none');
+      
+      // Calcola il tempo totale e la media dei tempi di reazione
+      const totalTime = clickTimes.reduce((a, b) => a + b, 0);
+      const averageTime = clickTimes.length ? totalTime / clickTimes.length : 0;
+      
+      const resultsHTML = `
+        <p><strong>Nome:</strong> ${player.name}</p>
+        <p><strong>Email:</strong> ${player.email}</p>
+        <p>Tempo totale (somma reazioni): ${totalTime} ms</p>
+        <p>Tempo medio: ${averageTime.toFixed(1)} ms</p>
+        <p>Bonus ottenuti: ${bonusCount}</p>
+        <p>Livello raggiunto: ${currentLevel + 1}</p>
+      `;
+      document.getElementById('results').innerHTML = resultsHTML;
+
+      // Salva i dati del giocatore in localStorage
+      const playerData = {
+        name: player.name,
+        email: player.email,
+        totalTime: totalTime,
+        levelReached: currentLevel + 1,
+        date: new Date().toLocaleString()
+      };
+      localStorage.setItem('playerStats', JSON.stringify(playerData));
+    }
+  </script>
+</body>
+</html>
