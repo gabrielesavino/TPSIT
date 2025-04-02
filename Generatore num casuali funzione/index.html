@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numeri Casuali</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #output {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            white-space: pre-wrap;
+        }
+        #mediaOutput {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generatore di Numeri Casuali</h1>
+    <label for="min">Min:</label>
+    <input type="number" id="min" value="1">
+    <label for="max">Max:</label>
+    <input type="number" id="max" value="100">
+    <button onclick="generaNumeri()">Genera</button>
+    <h2>Numeri generati con medie</h2>
+    <div id="output"></div>
+    <h2>Array delle medie</h2>
+    <div id="mediaOutput"></div>
+    
+    <script>
+        function generaNumeri() {
+            const min = parseFloat(document.getElementById('min').value);
+            const max = parseFloat(document.getElementById('max').value);
+            if (isNaN(min) || isNaN(max) || min >= max) {
+                alert("Inserisci un intervallo valido.");
+                return;
+            }
+            
+
+            const numeriArray = [];
+            const medieArray = [];
+            
+
+            for (let i = 0; i < 10000; i++) {
+                const numeroCasuale = Math.random() * (max - min) + min;
+                numeriArray.push(numeroCasuale);
+            }
+            
+            let outputText = "";
+            for (let i = 0; i < numeriArray.length; i += 50) {
+                const gruppo = numeriArray.slice(i, i + 50);
+                let riga = gruppo.join(" ");
+                
+                if (gruppo.length === 50) {
+                    const media = calcolaMedia(gruppo);
+                    riga += " [Media: " + media.toFixed(2) + "]";
+                    medieArray.push(media);
+                }
+                
+                outputText += riga + "\n";
+            }
+            
+            document.getElementById('output').textContent = outputText;
+            document.getElementById('mediaOutput').textContent = "Medie: " + medieArray.map(m => m.toFixed(2)).join(", ");
+        }
+        
+        function calcolaMedia(array) {
+            const somma = array.reduce((acc, num) => acc + num, 0);
+            return somma / array.length;
+        }
+    </script>
+</body>
+</html>
