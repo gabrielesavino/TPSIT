@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Div Sovrapposti</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-color: lightgrey;
+        }
+
+        .div {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            transition: background-color 0.3s;
+        }
+
+        #blueDiv {
+            background-color: blue;
+        }
+
+        #yellowDiv {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <div id="blueDiv" class="div"></div>
+    <div id="yellowDiv" class="div"></div>
+
+    <script>
+        function positionDivs() {
+            const blueDiv = document.getElementById('blueDiv');
+            const yellowDiv = document.getElementById('yellowDiv');
+
+            blueDiv.style.top = Math.random() * (window.innerHeight - 100) + 'px';
+            blueDiv.style.left = Math.random() * (window.innerWidth - 100) + 'px';
+
+            yellowDiv.style.top = Math.random() * (window.innerHeight - 100) + 'px';
+            yellowDiv.style.left = Math.random() * (window.innerWidth - 100) + 'px';
+        }
+
+        function checkOverlap() {
+            const blueDiv = document.getElementById('blueDiv');
+            const yellowDiv = document.getElementById('yellowDiv');
+
+            const blueRect = blueDiv.getBoundingClientRect();
+            const yellowRect = yellowDiv.getBoundingClientRect();
+
+            if (
+                blueRect.top < yellowRect.bottom &&
+                blueRect.bottom > yellowRect.top &&
+                blueRect.left < yellowRect.right &&
+                blueRect.right > yellowRect.left
+            ) {
+                blueDiv.style.backgroundColor = 'red';
+                yellowDiv.style.backgroundColor = 'red';
+            } else {
+                blueDiv.style.backgroundColor = 'blue';
+                yellowDiv.style.backgroundColor = 'yellow';
+            }
+        }
+
+        positionDivs();
+
+        setInterval(() => {
+            positionDivs();
+            checkOverlap();
+        }, 2000);
+    </script>
+</body>
+</html>
