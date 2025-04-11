@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Freaky Block Braker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+    /*Area di gioco*/
+    #areaGioco {
+      background: #000;
+      border: 2px solid #fff;
+    }
+    /*Schermata iniziale e schermata finale*/
+    .overlay {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      text-align: center;
+      z-index: 10;
+    }
+    #schermoIniziale {
+      display: block;
+    }
+    #schermoFinale {
+      display: none;
+    }
+    /*Visualizzazione dei punti*/
+    #areaPunti {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 18px;
+      z-index: 5;
+    }
+    /*Effetto shake quando la palla tocca un blocco*/
+    .shake {
+      animation: shake 0.2s;
+    }
+    @keyframes shake {
+      0% { transform: translate(2px, 2px); }
+      25% { transform: translate(-2px, -2px); }
+      50% { transform: translate(2px, -2px); }
+      75% { transform: translate(-2px, 2px); }
+      100% { transform: translate(0, 0); }
+    }
+    /*Bottone di riavvio*/
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #00ff88;
+      color: #111;
+    }
+  </style>
+</head>
+<body>
+
+  <!--Schermata iniziale-->
+  <div id="schermoIniziale" class="overlay">
+    <h1>🧱 Freaky Block Braker</h1>
+    <p>Premi SPAZIO per iniziare</p>
+  </div>
+
+  <!--Schermata finale-->
+  <div id="schermoFinale" class="overlay">
+    <h1>Game Over!</h1>
+    <p id="punteggioFinale">Punteggio: 0</p>
+    <button id="pulsanteRicomincia">Ricomincia</button>
+  </div>
+
+  <!--Layer-->
+  <canvas id="areaGioco" width="480" height="320"></canvas>
+  <div id="areaPunti">Punti: 0</div>
+
+  <script>
+    //Costanti
+    const areaGioco = document.getElementById("areaGioco");
+    const contesto = areaGioco.getContext("2d");
+    const areaPunti = document.getElementById("areaPunti");
+    const schermoIniziale = document.getElementById("schermoIniziale");
+    const schermoFinale = document.getElementById("schermoFinale");
+    const punteggioFinale = document.getElementById("punteggioFinale");
+    const pulsanteRicomincia = document.getElementById("pulsanteRicomincia");
+
+    //Stato del gioco
+    let inGioco = false;
+    let punteggio = 0;
+
+    //Palla
+    let pallaX = areaGioco.width / 2;
+    let pallaY = areaGioco.height - 30;
+    const raggioPalla = 8;
+    let velocitàX = 2;
+    let velocitàY = -2;
+
+    //Barra
+    const altezzaBarra = 10;
+    const larghezzaBarra = 75;
+    let posizioneBarraX = (areaGioco.width - larghezzaBarra) / 2;
+    let frecciaDestraPremuta = false;
+    let frecciaSinistraPremuta = false;
+
+    //Blocchi
+    const numeroRigheBlocchi = 3;
+    const numeroColonneBlocchi = 5;
+    const larghezzaBlocco = 75;
+    const altezzaBlocco = 20;
+    const spazioTraBlocchi = 10;
+    const offsetBloccoAlto = 30;
+    const offsetBloccoSinistra = 30;
+    const blocchi = [];
+    for (let colonna = 0; colonna < numeroColonneBlocchi; colonna++) {
+      blocchi[colonna] = [];
+      for (let riga = 0; riga < numeroRigheBlocchi; riga++) {
+        blocchi[colonna][riga] = { x: 0, y: 0, visibile: true };
+      }
+    }
+
+    //Eventi del movimento della palla
+    document.addEventListener("keydown", gestoreTastiPremuti);
+    document.addEventListener("keyup", gestoreTastiRilasciati);
+
+    function gestoreTastiPremuti(evento) {
+      if (evento.key === "ArrowRight" || evento.key === "Right") {
+        frecciaDestraPremuta = true;
+      } else if (evento.key === "ArrowLeft" || evento.key === "Left") {
+        frecciaSinistraPremuta = true;
+      } else if (evento.code === "Space" && !inGioco) {
+        //Avvio del gioco dalla schermata iniziale
+        schermoIniziale.style.display = "none";
+        inGioco = true;
+        avviaGioco();
+      }
+    }
+
+    function gestoreTastiRilasciati(evento) {
+      if (evento.key === "ArrowRight" || evento.key === "Right") {
+        frecciaDestraPremuta = false;
+      } else if (evento.key === "ArrowLeft" || evento.key === "Left") {
+        frecciaSinistraPremuta = false;
+      }
+    }
+
+    //Funzione per applicare l'effetto di shake
+    function applicaShake() {
+      areaGioco.classList.add("shake");
+      setTimeout(() => areaGioco.classList.remove("shake"), 200);
+    }
+
+    //Rilevamento delle collisioni tra la palla e i blocchi
+    function rilevaCollisioni() {
+      for (let colonna = 0; colonna < numeroColonneBlocchi; colonna++) {
+        for (let riga = 0; riga < numeroRigheBlocchi; riga++) {
+          const blocco = blocchi[colonna][riga];
+          if (blocco.visibile) {
+            if (
+              pallaX > blocco.x &&
+              pallaX < blocco.x + larghezzaBlocco &&
+              pallaY > blocco.y &&
+              pallaY < blocco.y + altezzaBlocco
+            ) {
+              velocitàY = -velocitàY;
+              blocco.visibile = false;
+              punteggio += 10;
+              areaPunti.textContent = `Punti: ${punteggio}`;
+              applicaShake();
+            }
+          }
+        }
+      }
+    }
+
+    //Disegna la palla
+    function disegnaPalla() {
+      contesto.beginPath();
+      contesto.arc(pallaX, pallaY, raggioPalla, 0, Math.PI * 2);
+      contesto.fillStyle = "#00ccff";
+      contesto.fill();
+      contesto.closePath();
+    }
+
+    //Disegna la barra
+    function disegnaBarra() {
+      contesto.beginPath();
+      contesto.rect(posizioneBarraX, areaGioco.height - altezzaBarra, larghezzaBarra, altezzaBarra);
+      contesto.fillStyle = "#00ff88";
+      contesto.fill();
+      contesto.closePath();
+    }
+
+    //Disegna i blocchi
+    function disegnaBlocchi() {
+      for (let colonna = 0; colonna < numeroColonneBlocchi; colonna++) {
+        for (let riga = 0; riga < numeroRigheBlocchi; riga++) {
+          if (blocchi[colonna][riga].visibile) {
+            const xBlocco = (colonna * (larghezzaBlocco + spazioTraBlocchi)) + offsetBloccoSinistra;
+            const yBlocco = (riga * (altezzaBlocco + spazioTraBlocchi)) + offsetBloccoAlto;
+            blocchi[colonna][riga].x = xBlocco;
+            blocchi[colonna][riga].y = yBlocco;
+            contesto.beginPath();
+            contesto.rect(xBlocco, yBlocco, larghezzaBlocco, altezzaBlocco);
+            contesto.fillStyle = "#ff4444";
+            contesto.fill();
+            contesto.closePath();
+          }
+        }
+      }
+    }
+
+    //Funzione principale che gestisce il ciclo del gioco
+    function avviaGioco() {
+      if (!inGioco) return;
+
+      //Pulizia dell'area di gioco
+      contesto.clearRect(0, 0, areaGioco.width, areaGioco.height);
+
+      //Disegniamo i vari elementi
+      disegnaBlocchi();
+      disegnaPalla();
+      disegnaBarra();
+      rilevaCollisioni();
+
+      //Controllo dei rimbalzi
+      //Rimbalzo orizzontale
+      if (pallaX + velocitàX > areaGioco.width - raggioPalla || pallaX + velocitàX < raggioPalla) {
+        velocitàX = -velocitàX;
+      }
+      //Rimbalzo verticale in alto
+      if (pallaY + velocitàY < raggioPalla) {
+        velocitàY = -velocitàY;
+      }
+      //Verifica se la palla tocca il fondo
+      else if (pallaY + velocitàY > areaGioco.height - raggioPalla) {
+        //Se la palla colpisce la barra
+        if (pallaX > posizioneBarraX && pallaX < posizioneBarraX + larghezzaBarra) {
+          velocitàY = -velocitàY;
+        } else {
+          //Fine gioco: mostra lo schermo finale e ferma il loop
+          inGioco = false;
+          punteggioFinale.textContent = `Punteggio: ${punteggio}`;
+          schermoFinale.style.display = "flex";
+          return;
+        }
+      }
+
+      //Aggiorniamo la posizione della palla
+      pallaX += velocitàX;
+      pallaY += velocitàY;
+
+      //Movimento della barra controllato dalle frecce
+      if (frecciaDestraPremuta && posizioneBarraX < areaGioco.width - larghezzaBarra) {
+        posizioneBarraX += 6;
+      } else if (frecciaSinistraPremuta && posizioneBarraX > 0) {
+        posizioneBarraX -= 6;
+      }
+
+      requestAnimationFrame(avviaGioco);
+    }
+
+    //Pulsante per riavviare il gioco
+    pulsanteRicomincia.addEventListener("click", () => {
+      document.location.reload();
+    });
+  </script>
+</body>
+</html>
