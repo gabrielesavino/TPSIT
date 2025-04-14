@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numeri Casuali</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #output, #mediaOutput, #rapportiOutput, #distanzeOutput {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generatore di Numeri Casuali</h1>
+    <label for="min">Min:</label>
+    <input type="number" id="min" value="0" step="0.01">
+    <label for="max">Max:</label>
+    <input type="number" id="max" value="1" step="0.01">
+    <button onclick="avviaGenerazione()">Avvia Generazione</button>
+    <button onclick="stopGenerazione()">Ferma</button>
+
+    <h2>Numeri generati con medie</h2>
+    <div id="output"></div>
+
+    <h2>Array delle medie</h2>
+    <div id="mediaOutput"></div>
+
+    <h2>Rapporti (n = i/i-1)</h2>
+    <div id="rapportiOutput"></div>
+
+    <h2>Distanze dalla media</h2>
+    <div id="distanzeOutput"></div>
+
+    <script>
+        let numeriArray = [];
+        let medieArray = [];
+        let rapportiArray = [];
+        let distanzeArray = [];
+        let intervalId = null;
+
+        function avviaGenerazione() {
+            const min = parseFloat(document.getElementById('min').value);
+            const max = parseFloat(document.getElementById('max').value);
+            if (isNaN(min) || isNaN(max) || min >= max) {
+                alert("Inserisci un intervallo valido.");
+                return;
+            }
+
+            numeriArray = [];
+            medieArray = [];
+            rapportiArray = [];
+            distanzeArray = [];
+            clearInterval(intervalId);
+
+            intervalId = setInterval(() => {
+                const numero = Math.random() * (max - min) + min;
+                numeriArray.push(numero);
+
+                if (numeriArray.length >= 2) {
+                    const n = numero / numeriArray[numeriArray.length - 2];
+                    rapportiArray.push(n);
+                }
+
+                const mediaRange = (max - min) / 2;
+                const distanza = Math.abs(numero - mediaRange);
+                distanzeArray.push(distanza);
+
+                if (numeriArray.length % 50 === 0) {
+                    const gruppo = numeriArray.slice(numeriArray.length - 50);
+                    const media = calcolaMedia(gruppo);
+                    medieArray.push(media);
+                }
+
+                aggiornaOutput(min, max);
+            }, 500);
+        }
+
+        function stopGenerazione() {
+            clearInterval(intervalId);
+        }
+
+        function aggiornaOutput(min, max) {
+            const output = numeriArray.map((n, i) => n.toFixed(4)).join(" ");
+            const medie = medieArray.map(m => m.toFixed(4)).join(", ");
+            const rapporti = rapportiArray.map(r => r.toFixed(4)).join(", ");
+            const distanze = distanzeArray.map(d => d.toFixed(4)).join(", ");
+
+            document.getElementById('output').textContent = output;
+            document.getElementById('mediaOutput').textContent = "Medie: " + medie;
+            document.getElementById('rapportiOutput').textContent = "Rapporti: " + rapporti;
+            document.getElementById('distanzeOutput').textContent = "Distanze dalla metà del range (" + ((max - min) / 2).toFixed(2) + "): " + distanze;
+        }
+
+        function calcolaMedia(array) {
+            const somma = array.reduce((acc, num) => acc + num, 0);
+            return somma / array.length;
+        }
+    </script>
+</body>
+</html>
