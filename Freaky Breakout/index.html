@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Freaky Breakout</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      margin: 0; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 100vh; 
+      background: #1a1a1a; 
+      font-family: 'Press Start 2P', cursive; 
+    }
+    #game-container { 
+      position: relative; 
+      border: 2px solid #00ff00; 
+      border-radius: 5px; 
+      overflow: hidden; 
+    }
+    canvas { 
+      background: #000; 
+      display: block; 
+    }
+    .game-info { 
+      position: absolute; 
+      top: 10px; 
+      color: #fff; 
+      padding: 5px 10px; 
+      background: rgba(0,0,0,0.7); 
+      font-size: 14px; 
+    }
+    #score { left: 10px; }
+    #lives { right: 10px; }
+    .overlay { 
+      position: absolute; 
+      top: 0; left: 0; 
+      width: 100%; height: 100%; 
+      background: rgba(0,0,0,0.9); 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      flex-direction: column; 
+      color: #fff; 
+      text-align: center; 
+    }
+    .hidden { display: none; }
+    .menu { padding: 20px; border: 2px solid #fff; }
+    h1 { font-size: 2em; margin-bottom: 20px; color: #00ff00; }
+    .btn { 
+      padding: 10px 20px; 
+      margin: 10px; 
+      background: #000; 
+      color: #fff; 
+      border: 2px solid #fff; 
+      cursor: pointer; 
+      transition: 0.2s; 
+    }
+    .btn:hover { 
+      background: #00ff00; 
+      color: #000; 
+    }
+    p { margin: 10px 0; }
+    .block-border {
+        stroke: #fff;
+        stroke-width: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <!-- Schermata iniziale con spiegazione base -->
+    <div id="main-menu" class="overlay">
+      <div class="menu">
+        <h1>FREAKY BREAKOUT</h1>
+        <button class="btn" onclick="showInstructions()">GIOCA</button>
+      </div>
+    </div>
+    
+    <!-- Schermata istruzioni -->
+    <div id="instructions-screen" class="overlay hidden">
+      <div class="menu">
+        <h1>Controlli</h1>
+        <p><br>
+          Usa il mouse per muovere la paletta<br>
+          Premi SPAZIO per lanciare la pallina<br>
+          Premi P per la pausa<br>
+        </p>
+        <button class="btn" onclick="initAndReadyGame()">Inizia</button>
+      </div>
+    </div>
+    
+    <!-- Overlay per pausa -->
+    <div id="pause-screen" class="overlay hidden">
+      <div class="menu">
+        <h1>PAUSA</h1>
+        <button class="btn" onclick="togglePause()">Riprendi</button>
+      </div>
+    </div>
+    
+    <canvas id="game-canvas" width="576" height="700"></canvas>
+    <div id="score" class="game-info">PUNTEGGIO: 0</div>
+    <div id="lives" class="game-info">VITE: 3</div>
+    <div id="game-over" class="overlay hidden">
+      <div class="menu">
+        <h1>GAME OVER</h1>
+        <p id="final-score">PUNTEGGIO: 0</p>
+        <button class="btn" onclick="initAndReadyGame()">RIGIOCA</button>
+        <button class="btn" onclick="showMainMenu()">MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CONFIG = {
+      DIM: { 
+        W: 576, 
+        H: 700, 
+        PADDLE_W: 120, 
+        PADDLE_H: 15, 
+        BALL_R: 10, 
+        BLOCK_W: 70, 
+        BLOCK_H: 25, 
+        BLOCK_SP: 5 
+      },
+      SPEED: { 
+        BALL: 5, 
+        PADDLE: 8, 
+        POWERUP: 2 
+      },
+      COLORS: ['#FF5555','#55FF55','#5555FF','#FFFF55']
+    };
+
+    /// Stato del gioco
+    let game = { 
+      paddleX: CONFIG.DIM.W/2, 
+      balls: [], 
+      blocks: [], 
+      powerups: [], 
+      particles: [], 
+      lives: 3, 
+      score: 0, 
+      running: false, 
+      paused: false,
+      ballReady: false,    // Se la pallina principale è "attaccata" al paddle ed in attesa del lancio
+      blocksDestroyed: false  // Flag per la rigenerazione dei blocchi
+    };
+
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Inizializza il gioco (solo per blocchi, HUD, ecc.)
+    function initGame() {
+    game.paddleX = CONFIG.DIM.W/2;
+    // Inizializzazione blocchi semplificata
+    game.blocks = [];
+    const cols = 7, rows = 5;
+    const totalW = cols * (CONFIG.DIM.BLOCK_W + CONFIG.DIM.BLOCK_SP) - CONFIG.DIM.BLOCK_SP;
+    const startX = (CONFIG.DIM.W - totalW) / 2;
+    
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            if(Math.random() < 0.8) {
+                game.blocks.push({
+                    x: startX + c * (CONFIG.DIM.BLOCK_W + CONFIG.DIM.BLOCK_SP),
+                    y: 50 + r * (CONFIG.DIM.BLOCK_H + CONFIG.DIM.BLOCK_SP),
+                    hits: Math.random() < 0.5 ? 2 : 1, // 50% 1 o 2 vite
+                    color: CONFIG.COLORS[r % CONFIG.COLORS.length],
+                    active: true
+                });
+            }
+        }
+    }
+    
+    game.blocksDestroyed = false;
+    game.powerups = [];
+    game.particles = [];
+    game.lives = 3;
+    game.score = 0;
+    updateHUD();
+}
+
+    // Rigenera blocchi (solo la parte relativa ai blocchi)
+    function regenerateBlocks() {
+      game.blocks = [];
+      const cols = 7, rows = 5;
+      const totalW = cols * (CONFIG.DIM.BLOCK_W + CONFIG.DIM.BLOCK_SP) - CONFIG.DIM.BLOCK_SP;
+      const startX = (CONFIG.DIM.W - totalW) / 2;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if(Math.random() < 0.8) {
+            game.blocks.push({
+              x: startX + c * (CONFIG.DIM.BLOCK_W + CONFIG.DIM.BLOCK_SP),
+              y: 50 + r * (CONFIG.DIM.BLOCK_H + CONFIG.DIM.BLOCK_SP),
+              hits: Math.random() < 0.5 ? 2 : 1,
+              color: CONFIG.COLORS[r % CONFIG.COLORS.length],
+              active: true
+            });
+          }
+        }
+      }
+      game.blocksDestroyed = false;
+    }
+
+    // Aggiorna HUD
+    function updateHUD() {
+      document.getElementById('score').textContent = `PUNTEGGIO: ${game.score}`;
+      document.getElementById('lives').textContent = `VITE: ${game.lives}`;
+    }
+
+    /* FUNZIONI DI DISEGNO */
+
+    function drawBlocks() {
+    game.blocks.forEach(block => {
+        if(block.active) {
+            // Colore base
+            ctx.fillStyle = block.color;
+            ctx.fillRect(block.x, block.y, CONFIG.DIM.BLOCK_W, CONFIG.DIM.BLOCK_H);
+
+            // Bordo bianco spesso solo per blocchi con 2 vite
+            if(block.hits === 2) {
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(
+                    block.x + 2, 
+                    block.y + 2, 
+                    CONFIG.DIM.BLOCK_W - 4, 
+                    CONFIG.DIM.BLOCK_H - 4
+                );
+            }
+        }
+    });
+}
+    function drawPaddle() {
+      ctx.fillStyle = '#00FF00';
+      ctx.fillRect(game.paddleX - CONFIG.DIM.PADDLE_W/2, CONFIG.DIM.H - 30, CONFIG.DIM.PADDLE_W, CONFIG.DIM.PADDLE_H);
+    }
+
+    function drawBalls() {
+      game.balls.forEach(ball => {
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.r, 0, 2 * Math.PI);
+        ctx.fillStyle = ball.color;
+        ctx.fill();
+      });
+    }
+
+    function drawPowerups() {
+      game.powerups.forEach(pu => {
+        ctx.fillStyle = pu.color;
+        ctx.beginPath();
+        ctx.arc(pu.x, pu.y, 8, 0, 2 * Math.PI);
+        ctx.fill();
+      });
+    }
+
+    function drawParticles() {
+      game.particles.forEach(p => {
+        ctx.globalAlpha = p.life / 30;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, 2, 2);
+        ctx.globalAlpha = 1;
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, CONFIG.DIM.W, CONFIG.DIM.H);
+      drawBlocks();
+      drawPaddle();
+      drawBalls();
+      drawPowerups();
+      drawParticles();
+    }
+
+    /* FUNZIONI DI AGGIORNAMENTO */
+
+    function updateBalls() {
+    for (let i = game.balls.length - 1; i >= 0; i--) {
+        let ball = game.balls[i];
+
+        if (ball.isMain && game.ballReady) {
+            ball.x = game.paddleX;
+            ball.y = CONFIG.DIM.H - 50;
+            continue;
+        }
+
+        ball.x += ball.dx;
+        ball.y += ball.dy;
+
+        if(ball.x < ball.r || ball.x > CONFIG.DIM.W - ball.r) {
+            ball.dx *= -1;
+            spark(ball.x, ball.y);
+        }
+        if(ball.y < ball.r) {
+            ball.dy *= -1;
+            spark(ball.x, ball.y);
+        }
+
+        if(ball.y > CONFIG.DIM.H) {
+            if(ball.isMain) {
+                game.balls.splice(i, 1);
+                game.lives--;
+                updateHUD();
+                if(game.lives > 0) {
+                    spawnMainBall();
+                } else {
+                    endGame();
+                }
+            } else {
+                game.balls.splice(i, 1);
+            }
+            continue;
+        }
+
+        if(ball.y + ball.r > CONFIG.DIM.H - 30 &&
+            ball.x > game.paddleX - CONFIG.DIM.PADDLE_W/2 &&
+            ball.x < game.paddleX + CONFIG.DIM.PADDLE_W/2) {
+            ball.dy = -Math.abs(ball.dy);
+            ball.dx += (ball.x - game.paddleX) * 0.03;
+            spark(ball.x, ball.y);
+            if(ball.isMain && game.blocksDestroyed) {
+                regenerateBlocks();
+            }
+        }
+
+        game.blocks.forEach(block => {
+            if(block.active &&
+                ball.x > block.x &&
+                ball.x < block.x + CONFIG.DIM.BLOCK_W &&
+                ball.y > block.y &&
+                ball.y < block.y + CONFIG.DIM.BLOCK_H) {
+                ball.dy *= -1;
+                block.hits--;
+                spark(block.x + CONFIG.DIM.BLOCK_W/2, block.y + CONFIG.DIM.BLOCK_H/2);
+                
+                if(block.hits <= 0) {
+                    block.active = false;
+                    game.score += 10;
+                    updateHUD();
+                    
+                    if(Math.random() < 0.25) {
+                        game.powerups.push({
+                            x: block.x + CONFIG.DIM.BLOCK_W / 2,
+                            y: block.y + CONFIG.DIM.BLOCK_H / 2,
+                            type: Math.random() < 0.5 ? 'extra' : 'speed',
+                            color: '#FFFF00'
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+    if(game.blocks.every(block => !block.active)) {
+        game.blocksDestroyed = true;
+    }
+}
+
+    function updatePowerups() {
+      for (let i = game.powerups.length - 1; i >= 0; i--) {
+        let pu = game.powerups[i];
+        pu.y += CONFIG.SPEED.POWERUP;
+        if(pu.y > CONFIG.DIM.H) { 
+          game.powerups.splice(i, 1);
+          continue;
+        }
+        if(pu.y > CONFIG.DIM.H - 30 &&
+           pu.x > game.paddleX - CONFIG.DIM.PADDLE_W/2 &&
+           pu.x < game.paddleX + CONFIG.DIM.PADDLE_W/2) {
+          if(pu.type === 'extra') {
+            spawnExtraBall();
+          } else {
+            // Boost di velocità per tutte le palline
+            game.balls.forEach(b => {
+              b.dx *= 1.2;
+              b.dy *= 1.2;
+              setTimeout(() => { 
+                b.dx /= 1.2; 
+                b.dy /= 1.2; 
+              }, 8000);
+            });
+          }
+          game.powerups.splice(i, 1);
+        }
+      }
+    }
+
+    function updateParticles() {
+      game.particles = game.particles.filter(p => { 
+        p.x += p.dx; 
+        p.y += p.dy; 
+        p.life--; 
+        return p.life > 0; 
+      });
+    }
+
+    function update() {
+      updateBalls();
+      updatePowerups();
+      updateParticles();
+    }
+
+    function loop() {
+      if (!game.paused) {
+        draw();
+        update();
+      }
+      if(game.running && !game.paused) {
+        requestAnimationFrame(loop);
+      }
+    }
+
+    // Funzione per generare particelle
+    function spark(x, y) {
+      for(let i = 0; i < 10; i++) {
+        game.particles.push({
+          x: x,
+          y: y,
+          dx: (Math.random() - 0.5) * 4,
+          dy: (Math.random() - 0.5) * 4,
+          color: '#FFF',
+          life: 30
+        });
+      }
+    }
+
+    // Crea la pallina principale in modalità "pronta" (ferma sull'area del paddle)
+    function spawnMainBall() {
+      game.balls.push({
+        x: game.paddleX,
+        y: CONFIG.DIM.H - 50,
+        dx: 0,
+        dy: 0,
+        r: CONFIG.DIM.BALL_R,
+        isMain: true,
+        color: '#FFF'
+      });
+      game.ballReady = true;
+    }
+
+    // Crea una pallina extra (power-up) con colore diverso
+    function spawnExtraBall() {
+      game.balls.push({
+        x: game.paddleX,
+        y: CONFIG.DIM.H - 50,
+        dx: CONFIG.SPEED.BALL * (Math.random() > 0.5 ? 1 : -1),
+        dy: -CONFIG.SPEED.BALL,
+        r: CONFIG.DIM.BALL_R,
+        isMain: false,
+        color: '#FFAA00'
+      });
+    }
+
+    // Toggle pausa/ripresa
+    function togglePause() {
+      game.paused = !game.paused;
+      const pauseScreen = document.getElementById('pause-screen');
+      if(game.paused) {
+        pauseScreen.classList.remove('hidden');
+      } else {
+        pauseScreen.classList.add('hidden');
+        loop();
+      }
+    }
+
+    // Mostra la schermata istruzioni (nasconde il menu principale)
+    function showInstructions() {
+      document.getElementById('main-menu').classList.add('hidden');
+      document.getElementById('instructions-screen').classList.remove('hidden');
+    }
+
+    // Inizializza il gioco e prepara la pallina in modalità "pronta"
+    function initAndReadyGame() {
+      document.getElementById('instructions-screen').classList.add('hidden');
+      document.getElementById('game-over').classList.add('hidden');
+      initGame();
+      game.running = true;
+      game.paused = false;
+      // Assicura che non ci siano vecchie palline
+      game.balls = [];
+      spawnMainBall();
+      loop();
+    }
+
+    // Mostra il menu principale
+    function showMainMenu() {
+      document.getElementById('game-over').classList.add('hidden');
+      document.getElementById('main-menu').classList.remove('hidden');
+    }
+
+    // Fine gioco: mostra schermata game over
+    function endGame() {
+      game.running = false;
+      document.getElementById('final-score').textContent = `PUNTEGGIO: ${game.score}`;
+      document.getElementById('game-over').classList.remove('hidden');
+    }
+
+    /* EVENTI DI INPUT */
+
+    // Movimenti del paddle tramite tastiera
+    document.addEventListener('keydown', e => {
+      if(e.key === 'ArrowLeft') {
+        game.paddleX = Math.max(game.paddleX - CONFIG.SPEED.PADDLE, CONFIG.DIM.PADDLE_W / 2);
+      }
+      if(e.key === 'ArrowRight') {
+        game.paddleX = Math.min(game.paddleX + CONFIG.SPEED.PADDLE, CONFIG.DIM.W - CONFIG.DIM.PADDLE_W / 2);
+      }
+      // Lancio della pallina principale se in modalità "pronta"
+      if(e.key === ' ' && game.ballReady) {
+        game.balls.forEach(ball => {
+          if(ball.isMain) {
+            ball.dx = CONFIG.SPEED.BALL * (Math.random() > 0.5 ? 1 : -1);
+            ball.dy = -CONFIG.SPEED.BALL;
+          }
+        });
+        game.ballReady = false;
+      }
+      // Tasto pausa
+      if(e.key === 'p' || e.key === 'P') {
+        if(game.running) togglePause();
+      }
+    });
+
+    // Controllo mouse per spostare il paddle
+    canvas.addEventListener('mousemove', function(e) {
+      const rect = canvas.getBoundingClientRect();
+      game.paddleX = e.clientX - rect.left;
+    });
+
+    // Controllo touch per dispositivi mobili
+    canvas.addEventListener('touchmove', function(e) {
+      const rect = canvas.getBoundingClientRect();
+      game.paddleX = e.touches[0].clientX - rect.left;
+      e.preventDefault();
+    }, {passive: false});
+
+  </script>
+</body>
+</html>
