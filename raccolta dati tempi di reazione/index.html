@@ -4,187 +4,258 @@
     <meta charset="UTF-8">
     <title>Raccolta Tempi di Reazione</title>
     <style>
+        :root {
+            --primary: #2ecc71;
+            --background: #111;
+            --text: #ecf0f1;
+        }
+
         body {
             margin: 0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            background: #1a1a1a;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            color: #fff;
+            background: var(--background);
+            font-family: 'Roboto', sans-serif;
+            color: var(--text);
         }
 
         .container {
+            width: min(90%, 800px);
+            margin: 2rem auto;
             text-align: center;
-            max-width: 400px;
-            padding: 2rem;
         }
 
-        #trigger {
-            width: 200px;
-            height: 200px;
-            background: #333;
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            margin: 2rem auto;
+            padding: 2rem;
             cursor: pointer;
             transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: #666;
-            border: 2px solid #444;
+            position: relative;
+            overflow: hidden;
         }
 
-        #trigger.ready {
-            background: #4CAF50;
-            color: rgba(255, 255, 255, 0.9);
-            border-color: #60d864;
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
-            transform: scale(1.05);
-        }
-
-        .stats {
-            margin-top: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 1.5rem;
-            border-radius: 8px;
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
+            border: 2px solid transparent;
+            border-radius: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .card:hover::after {
+            border-color: var(--primary);
+        }
+
+        .card.active {
+            background: var(--primary);
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(46, 204, 113, 0.3);
+        }
+
+        .card.wrong {
+            background: #e74c3c !important;
+            animation: shake 0.4s;
         }
 
         button {
-            background: #4CAF50;
+            background: var(--primary);
             border: none;
-            padding: 0.8rem 2rem;
-            color: white;
-            border-radius: 25px;
+            padding: 1rem 2.5rem;
+            color: var(--text);
+            border-radius: 50px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 1.1rem;
             transition: transform 0.2s;
-            margin-top: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         button:hover {
             transform: scale(1.05);
         }
 
-        .history {
-            list-style: none;
-            padding: 0;
-            margin: 1rem 0;
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
         }
 
-        .history li {
-            padding: 0.5rem;
-            margin: 0.3rem 0;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
 
-        .progress {
+        .timer {
             height: 3px;
-            background: #4CAF50;
+            background: var(--primary);
             width: 0%;
-            transition: width 0.3s ease;
-            margin: 1rem 0;
+            transition: width 5s linear;
+            margin: 1rem auto;
+        }
+
+        .leaderboard {
+            width: 100%;
+            margin-top: 2rem;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1rem;
+            border-radius: 8px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Raccolta Tempi di Reazione</h1>
-        <div class="progress"></div>
-        <div id="trigger">Premi Start</div>
+        <h1>Raccolta tempi di reazione</h1>
+        <p>Clicca il numero primo più velocemente possibile!</p>
+        <div class="timer"></div>
+        <div class="grid" id="grid"></div>
+        <button onclick="iniziaGioco()">Avvia Test</button>
         
         <div class="stats">
-            <p>Media corrente: <span id="media">-</span> ms</p>
-            <p>Tentativi: <span id="tentativi">0/5</span></p>
-            
-            <ul class="history" id="storico"></ul>
-            
-            <button onclick="iniziaTest()">Nuovo Test</button>
+            <div>
+                <h3>⏱️ Ultimo</h3>
+                <p id="ultimo">-</p>
+            </div>
+            <div>
+                <h3>📊 Media</h3>
+                <p id="media">-</p>
+            </div>
+            <div>
+                <h3>🎯 Round</h3>
+                <p id="round">0/10</p>
+            </div>
+        </div>
+
+        <div class="leaderboard">
+            <h2>Migliori 10</h2>
+            <ol id="classifica"></ol>
         </div>
     </div>
 
     <script>
         let tempi = [];
         let round = 0;
-        let timeoutId;
         let startTime;
-        const maxRound = 5;
+        let targetNumber;
+        let timeoutId;
+        const totalRound = 10;
 
-        const trigger = document.getElementById('trigger');
-        const progress = document.querySelector('.progress');
+        const grid = document.getElementById('grid');
+        const timer = document.querySelector('.timer');
 
-        function iniziaTest() {
-            tempi = [];
-            round = 0;
-            trigger.classList.remove('ready');
-            trigger.textContent = 'Preparati...';
-            document.getElementById('storico').innerHTML = '';
-            document.getElementById('media').textContent = '-';
-            progress.style.width = '0%';
-            avviaRound();
-        }
-
-        function avviaRound() {
-            if(round >= maxRound) return mostraRisultati();
-
-            trigger.classList.remove('ready');
-            trigger.textContent = '';
-            progress.style.width = `${(round/maxRound)*100}%`;
-            document.getElementById('tentativi').textContent = `${round}/${maxRound}`;
-
-            const delay = Math.random() * 3000 + 1000;
+        function generaNumeri() {
+            grid.innerHTML = '';
+            const numbers = Array.from({length: 8}, () => Math.floor(Math.random() * 100) + 1);
+            targetNumber = Math.min(...numbers);
             
-            timeoutId = setTimeout(() => {
-                trigger.classList.add('ready');
-                trigger.textContent = 'CLICCA!';
-                startTime = Date.now();
-            }, delay);
+            numbers.forEach((num, i) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.textContent = num;
+                card.onclick = () => verificaScelta(num, card);
+                grid.appendChild(card);
+            });
         }
 
-        function registraClick() {
-            if(!trigger.classList.contains('ready')) {
-                clearTimeout(timeoutId);
-                trigger.textContent = 'Troppo presto!';
-                setTimeout(avviaRound, 1000);
+        function verificaScelta(num, card) {
+            if (num !== targetNumber) {
+                card.classList.add('wrong');
+                setTimeout(() => card.classList.remove('wrong'), 500);
                 return;
             }
 
             const reactionTime = Date.now() - startTime;
             tempi.push(reactionTime);
-            aggiornaStorico(reactionTime);
+            aggiornaStats();
+            
+            card.classList.add('active');
+            setTimeout(() => {
+                card.classList.remove('active');
+                prossimoRound();
+            }, 800);
+        }
+
+        function avviaRound() {
+            generaNumeri();
+            startTime = Date.now();
+            timer.style.width = '100%';
+            timer.style.transition = 'width 5s linear';
+            
+            timeoutId = setTimeout(() => {
+                alert('Tempo scaduto!');
+                prossimoRound();
+            }, 5000);
+        }
+
+        function prossimoRound() {
+            clearTimeout(timeoutId);
+            timer.style.width = '0%';
+            timer.style.transition = 'none';
             
             round++;
-            trigger.classList.remove('ready');
-            setTimeout(avviaRound, 800);
-        }
-
-        function aggiornaStorico(time) {
-            const storico = document.getElementById('storico');
-            const li = document.createElement('li');
-            li.innerHTML = `
-                <span>Tentativo ${round + 1}:</span>
-                <span>${time} ms</span>
-            `;
-            storico.prepend(li);
+            document.getElementById('round').textContent = `${round}/${totalRound}`;
             
-            const media = tempi.reduce((a, b) => a + b, 0) / tempi.length;
-            document.getElementById('media').textContent = media.toFixed(1);
+            if(round >= totalRound) {
+                fineGioco();
+            } else {
+                setTimeout(avviaRound, 1500);
+            }
         }
 
-        function mostraRisultati() {
-            progress.style.width = '100%';
-            trigger.textContent = 'Test completato!';
+        function aggiornaStats() {
+            document.getElementById('ultimo').textContent = `${tempi.slice(-1)[0]}ms`;
             const media = tempi.reduce((a, b) => a + b, 0) / tempi.length;
-            alert(`Media finale: ${media.toFixed(1)} ms`);
+            document.getElementById('media').textContent = `${media.toFixed(1)}ms`;
+            aggiornaClassifica();
         }
 
+        function aggiornaClassifica() {
+            const scores = JSON.parse(localStorage.getItem('scores') || '[]');
+            scores.push(tempi.slice(-1)[0]);
+            scores.sort((a, b) => a - b).splice(10);
+            localStorage.setItem('scores', JSON.stringify(scores));
+            
+            document.getElementById('classifica').innerHTML = scores
+                .map((score, i) => `<li>${i+1}. ${score}ms</li>`)
+                .join('');
+        }
+
+        function fineGioco() {
+            const mediaFinale = tempi.reduce((a, b) => a + b, 0) / tempi.length;
+            alert(`Test completato!\nMedia reazione: ${mediaFinale.toFixed(1)}ms`);
+            iniziaGioco();
+        }
+
+        function iniziaGioco() {
+            tempi = [];
+            round = 0;
+            grid.innerHTML = '';
+            document.getElementById('round').textContent = '0/10';
+            document.getElementById('media').textContent = '-';
+            document.getElementById('ultimo').textContent = '-';
+            avviaRound();
+        }
+    </script>
+</body>
+</html>
         trigger.addEventListener('click', registraClick);
     </script>
 </body>
