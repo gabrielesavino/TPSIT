@@ -2,110 +2,237 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Test di Reazione</title>
+    <title>Prime Reaction</title>
     <style>
+        :root {
+            --primary: #3498db;
+            --background: #1a1a1a;
+            --text: #ecf0f1;
+        }
+
         body {
+            margin: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-family: Arial, sans-serif;
+            background: var(--background);
+            font-family: 'Roboto', sans-serif;
+            color: var(--text);
         }
 
-        #gioco {
-            width: 300px;
-            height: 300px;
-            background-color: red;
-            border-radius: 15px;
-            margin: 20px;
+        .container {
+            width: min(90%, 800px);
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
             cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            color: white;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            font-size: 1.4rem;
         }
 
-        #gioco.pronto {
-            background-color: #4CAF50;
+        .card.prime {
+            border: 2px solid var(--primary);
+        }
+
+        .card.correct {
+            background: var(--primary);
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(52, 152, 219, 0.3);
+        }
+
+        .card.wrong {
+            background: #e74c3c !important;
+            animation: shake 0.4s;
         }
 
         button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin: 10px;
+            background: var(--primary);
+            border: none;
+            padding: 1rem 2.5rem;
+            color: var(--text);
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .timer {
+            height: 3px;
+            background: var(--primary);
+            width: 0%;
+            transition: width 5s linear;
+            margin: 1rem auto;
         }
     </style>
 </head>
 <body>
-    <h1>Test di Reazione</h1>
-    <p>Clicca il quadrato quando diventa VERDE!</p>
-    <div id="gioco">Premi Start per iniziare</div>
-    <button onclick="iniziaGioco()">Start</button>
-    <p id="risultato"></p>
-    <p id="media"></p>
+    <div class="container">
+        <h1>PRIME REACTION</h1>
+        <p>Clicca il numero primo più velocemente possibile!</p>
+        <div class="timer"></div>
+        <div class="grid" id="grid"></div>
+        <button onclick="iniziaGioco()">Inizia Gioco</button>
+        
+        <div class="stats">
+            <div>
+                <h3>⏱️ Ultimo</h3>
+                <p id="ultimo">-</p>
+            </div>
+            <div>
+                <h3>📊 Media</h3>
+                <p id="media">-</p>
+            </div>
+            <div>
+                <h3>🎯 Round</h3>
+                <p id="round">0/10</p>
+            </div>
+        </div>
+    </div>
 
     <script>
-        let tempiReazione = [];
-        let inGioco = false;
+        let tempi = [];
         let round = 0;
-        let tempoInizio;
+        let startTime;
+        let primeNumbers = [];
+        let timeoutId;
+        const totalRound = 10;
 
-        function iniziaGioco() {
-            tempiReazione = [];
-            round = 0;
-            document.getElementById('risultato').textContent = '';
-            document.getElementById('media').textContent = '';
-            avviaRound();
+        const grid = document.getElementById('grid');
+        const timer = document.querySelector('.timer');
+
+        function isPrime(num) {
+            if(num <= 1) return false;
+            if(num === 2) return true;
+            if(num % 2 === 0) return false;
+            for(let i = 3; i <= Math.sqrt(num); i += 2) {
+                if(num % i === 0) return false;
+            }
+            return true;
+        }
+
+        function generaNumeri() {
+            grid.innerHTML = '';
+            primeNumbers = [];
+            const numbers = [];
+            
+            // Genera almeno 2 numeri primi
+            while(primeNumbers.length < 2) {
+                numbers.length = 0;
+                primeNumbers.length = 0;
+                
+                for(let i = 0; i < 8; i++) {
+                    const num = Math.floor(Math.random() * 50) + 1;
+                    numbers.push(num);
+                    if(isPrime(num)) primeNumbers.push(num);
+                }
+            }
+
+            numbers.forEach((num, i) => {
+                const card = document.createElement('div');
+                card.className = `card ${isPrime(num) ? 'prime' : ''}`;
+                card.textContent = num;
+                card.onclick = () => verificaScelta(num, card);
+                grid.appendChild(card);
+            });
+        }
+
+        function verificaScelta(num, card) {
+            if (!isPrime(num)) {
+                card.classList.add('wrong');
+                setTimeout(() => card.classList.remove('wrong'), 500);
+                return;
+            }
+
+            const reactionTime = Date.now() - startTime;
+            tempi.push(reactionTime);
+            aggiornaStats();
+            
+            card.classList.add('correct');
+            setTimeout(() => {
+                card.classList.remove('correct');
+                prossimoRound();
+            }, 800);
         }
 
         function avviaRound() {
-            if(round >= 5) {
-                mostraMedia();
-                return;
-            }
-
-            inGioco = false;
-            document.getElementById('gioco').style.backgroundColor = 'red';
-            document.getElementById('gioco').textContent = 'Preparati...';
-
-            // Tempo di attesa casuale tra 1 e 5 secondi
-            const ritardo = Math.random() * 4000 + 1000;
+            generaNumeri();
+            startTime = Date.now();
+            timer.style.width = '100%';
+            timer.style.transition = 'width 5s linear';
             
-            setTimeout(() => {
-                inGioco = true;
-                document.getElementById('gioco').style.backgroundColor = '#4CAF50';
-                document.getElementById('gioco').textContent = 'CLICCA ORA!';
-                tempoInizio = Date.now();
-            }, ritardo);
+            timeoutId = setTimeout(() => {
+                alert('Tempo scaduto!');
+                prossimoRound();
+            }, 5000);
+        }
 
+        function prossimoRound() {
+            clearTimeout(timeoutId);
+            timer.style.width = '0%';
+            timer.style.transition = 'none';
+            
             round++;
-        }
-
-        function gestisciClick() {
-            if(!inGioco) {
-                document.getElementById('risultato').textContent = 'Troppo presto! Riprova!';
-                avviaRound();
-                return;
+            document.getElementById('round').textContent = `${round}/${totalRound}`;
+            
+            if(round >= totalRound) {
+                fineGioco();
+            } else {
+                setTimeout(avviaRound, 1500);
             }
-
-            const tempoReazione = Date.now() - tempoInizio;
-            tempiReazione.push(tempoReazione);
-            
-            document.getElementById('risultato').textContent = 
-                `Tempo di reazione: ${tempoReazione} ms (Round ${round}/5)`;
-            
-            inGioco = false;
-            setTimeout(avviaRound, 1500);
         }
 
-        function mostraMedia() {
-            const media = tempiReazione.reduce((a, b) => a + b, 0) / tempiReazione.length;
-            document.getElementById('media').textContent = 
-                `Media dei tempi: ${media.toFixed(1)} ms (${tempiReazione.length} tentativi)`;
+        function aggiornaStats() {
+            document.getElementById('ultimo').textContent = `${tempi.slice(-1)[0]}ms`;
+            const media = tempi.reduce((a, b) => a + b, 0) / tempi.length;
+            document.getElementById('media').textContent = `${media.toFixed(1)}ms`;
         }
 
-        // Setup evento click
-        document.getElementById('gioco').addEventListener('click', gestisciClick);
+        function fineGioco() {
+            const mediaFinale = tempi.reduce((a, b) => a + b, 0) / tempi.length;
+            alert(`Gioco completato!\nMedia tempi: ${mediaFinale.toFixed(1)}ms`);
+            iniziaGioco();
+        }
+
+        function iniziaGioco() {
+            tempi = [];
+            round = 0;
+            grid.innerHTML = '';
+            document.getElementById('round').textContent = '0/10';
+            document.getElementById('media').textContent = '-';
+            document.getElementById('ultimo').textContent = '-';
+            avviaRound();
+        }
     </script>
 </body>
 </html>
