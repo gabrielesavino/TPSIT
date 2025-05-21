@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Test di Reazione</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        #gioco {
+            width: 300px;
+            height: 300px;
+            background-color: red;
+            border-radius: 15px;
+            margin: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        #gioco.pronto {
+            background-color: #4CAF50;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test di Reazione</h1>
+    <p>Clicca il quadrato quando diventa VERDE!</p>
+    <div id="gioco">Premi Start per iniziare</div>
+    <button onclick="iniziaGioco()">Start</button>
+    <p id="risultato"></p>
+    <p id="media"></p>
+
+    <script>
+        let tempiReazione = [];
+        let inGioco = false;
+        let round = 0;
+        let tempoInizio;
+
+        function iniziaGioco() {
+            tempiReazione = [];
+            round = 0;
+            document.getElementById('risultato').textContent = '';
+            document.getElementById('media').textContent = '';
+            avviaRound();
+        }
+
+        function avviaRound() {
+            if(round >= 5) {
+                mostraMedia();
+                return;
+            }
+
+            inGioco = false;
+            document.getElementById('gioco').style.backgroundColor = 'red';
+            document.getElementById('gioco').textContent = 'Preparati...';
+
+            // Tempo di attesa casuale tra 1 e 5 secondi
+            const ritardo = Math.random() * 4000 + 1000;
+            
+            setTimeout(() => {
+                inGioco = true;
+                document.getElementById('gioco').style.backgroundColor = '#4CAF50';
+                document.getElementById('gioco').textContent = 'CLICCA ORA!';
+                tempoInizio = Date.now();
+            }, ritardo);
+
+            round++;
+        }
+
+        function gestisciClick() {
+            if(!inGioco) {
+                document.getElementById('risultato').textContent = 'Troppo presto! Riprova!';
+                avviaRound();
+                return;
+            }
+
+            const tempoReazione = Date.now() - tempoInizio;
+            tempiReazione.push(tempoReazione);
+            
+            document.getElementById('risultato').textContent = 
+                `Tempo di reazione: ${tempoReazione} ms (Round ${round}/5)`;
+            
+            inGioco = false;
+            setTimeout(avviaRound, 1500);
+        }
+
+        function mostraMedia() {
+            const media = tempiReazione.reduce((a, b) => a + b, 0) / tempiReazione.length;
+            document.getElementById('media').textContent = 
+                `Media dei tempi: ${media.toFixed(1)} ms (${tempiReazione.length} tentativi)`;
+        }
+
+        // Setup evento click
+        document.getElementById('gioco').addEventListener('click', gestisciClick);
+    </script>
+</body>
+</html>
