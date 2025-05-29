@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulazione di Allunaggio - Zucchetti Academy</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body {
+            background: linear-gradient(135deg, #0c0e1d, #1a1f3d, #2a325f);
+            color: #fff; min-height: 100vh; padding: 20px;
+            display: flex; flex-direction: column; align-items: center; overflow-x: hidden;
+        }
+        .header { text-align: center; margin: 15px 0 25px; width: 100%; }
+        .header h1 {
+            font-size: 2.8rem; letter-spacing: 2px; margin-bottom: 10px;
+            background: linear-gradient(to right, #ff9966, #ff5e62);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            text-shadow: 0 0 15px rgba(255,100,100,0.3);
+        }
+        .header h2 { font-size:1.4rem; font-weight:400; color:#a0d2eb; margin-bottom:10px; }
+        .logo { display:flex; justify-content:center; align-items:center; margin-top:15px; }
+        .logo-text {
+            font-size:1.8rem; font-weight:bold;
+            background: linear-gradient(to right, #00c9ff, #92fe9d);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            margin:0 15px;
+        }
+        .logo-line { height:2px; width:80px; background: linear-gradient(to right, #00c9ff, #92fe9d); }
+        .container { display:flex; flex-wrap:wrap; gap:25px; max-width:1200px; width:100%; margin-bottom:30px; }
+        .control-panel, .simulation-area {
+            border-radius:15px; padding:25px; box-shadow:0 10px 30px rgba(0,0,0,0.4);
+            backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.15);
+            display:flex; flex-direction:column;
+        }
+        .control-panel {
+            background: rgba(25,40,65,0.85); flex:1; min-width:300px;
+        }
+        .simulation-area {
+            background: rgba(15,25,40,0.85); flex:2; min-width:500px; padding:20px;
+        }
+        .panel-title {
+            font-size:1.6rem; margin-bottom:20px; padding-bottom:10px;
+            border-bottom:2px solid #ff5e62; color:#ff9966; display:flex; align-items:center; gap:10px;
+        }
+        .input-group { margin-bottom:20px; }
+        .input-group label {
+            display:flex; align-items:center; gap:8px;
+            margin-bottom:8px; font-size:1.1rem; color:#a0d2eb;
+        }
+        .input-group input {
+            width:100%; padding:12px 15px; border-radius:8px; border:none;
+            background:rgba(10,20,35,0.7); color:#fff; font-size:1.1rem;
+            border:1px solid rgba(255,255,255,0.1); transition:0.3s;
+        }
+        .input-group input:focus {
+            outline:none; border-color:#00c9ff; box-shadow:0 0 12px rgba(0,201,255,0.5);
+        }
+        .range-info {
+            display:flex; justify-content:space-between; font-size:0.9rem; color:#92fe9d; margin-top:5px;
+        }
+        .button-group { display:flex; gap:15px; margin-top:10px; }
+        .btn {
+            flex:1; padding:14px; border:none; border-radius:8px;
+            font-size:1.1rem; font-weight:600; cursor:pointer;
+            transition:0.3s; box-shadow:0 4px 12px rgba(0,0,0,0.25);
+        }
+        .btn:disabled { opacity:0.6; cursor:not-allowed; }
+        .btn-primary { background:linear-gradient(to right,#00c9ff,#92fe9d); color:#0f2027; }
+        .btn-secondary { background:linear-gradient(to right,#ff9966,#ff5e62); color:#fff; }
+        .indicators {
+            display:grid; grid-template-columns:repeat(2,1fr); gap:15px; margin-top:auto;
+            background:rgba(10,20,35,0.6); padding:20px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);
+        }
+        .indicator { text-align:center; }
+        .indicator-title { font-size:1rem; color:#a0d2eb; margin-bottom:5px; }
+        .indicator-value { font-size:1.8rem; font-weight:700; color:#ff9966; }
+        .indicator-unit { font-size:1rem; color:#92fe9d; }
+        .canvas-container {
+            flex:1; background:#0a1c29; border-radius:12px; overflow:hidden; position:relative; border:2px solid rgba(255,255,255,0.1); margin-top:10px;
+        }
+        #gameCanvas { width:100%; height:100%; display:block; }
+        .moon-surface {
+            position:absolute; bottom:0; width:100%; height:70px;
+            background:linear-gradient(to top,#7d7d7d,#a0a0a0); border-top:3px solid #5a5a5a;
+        }
+        .landing-zone {
+            position:absolute; bottom:70px; left:50%; transform:translateX(-50%);
+            width:100px; height:5px; background:#00ff00; box-shadow:0 0 15px rgba(0,255,0,0.7);
+        }
+        .status-message {
+            margin-top:20px; padding:15px; border-radius:8px; text-align:center;
+            font-size:1.2rem; background:rgba(255,255,255,0.1); min-height:60px;
+            display:flex; align-items:center; justify-content:center; color:#a0d2eb;
+        }
+        .controls-info { display:flex; flex-direction:column; gap:15px; margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1); }
+        .controls-row { display:flex; justify-content:center; gap:10px; }
+        .key {
+            width:60px; height:60px; background:rgba(10,20,35,0.7); border-radius:10px;
+            display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold;
+            box-shadow:0 5px 15px rgba(0,0,0,0.3); transition:0.2s; border:2px solid rgba(255,255,255,0.2);
+        }
+        .key.active { background:linear-gradient(to bottom,#ff9966,#ff5e62); transform:translateY(3px); box-shadow:0 2px 8px rgba(0,0,0,0.3); }
+        .key-label { text-align:center; font-size:0.9rem; color:#92fe9d; margin-top:5px; }
+        .footer { margin-top:30px; text-align:center; color:#a0d2eb; font-size:0.9rem; padding:20px; }
+        @media (max-width:900px) {
+            .container { flex-direction:column; }
+            .simulation-area, .control-panel { min-width:100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Simulazione di Allunaggio</h1>
+        <h2>Project Work - Zucchetti Academy</h2>
+        <div class="logo">
+            <div class="logo-line"></div>
+            <div class="logo-text">Gabriele Savino</div>
+            <div class="logo-line"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="control-panel">
+            <h2 class="panel-title">Parametri di Missione</h2>
+            <div class="input-group">
+                <label for="mass">Massa (kg)</label>
+                <input id="mass" type="number" min="1000" max="10000" value="5000">
+                <div class="range-info"><span>Min:1000</span><span>Max:10000</span></div>
+            </div>
+            <div class="input-group">
+                <label for="thrust">Potenza Propulsori (N)</label>
+                <input id="thrust" type="number" min="5000" max="20000" value="10000">
+                <div class="range-info"><span>Min:5000</span><span>Max:20000</span></div>
+            </div>
+            <div class="input-group">
+                <label for="fuel">Carburante (kg)</label>
+                <input id="fuel" type="number" min="100" max="1000" value="500">
+                <div class="range-info"><span>Min:100</span><span>Max:1000</span></div>
+            </div>
+            <div class="button-group">
+                <button id="startBtn" class="btn btn-primary">Avvia Simulazione</button>
+                <button id="resetBtn" class="btn btn-secondary">Reset</button>
+            </div>
+            <div class="indicators">
+                <div class="indicator"><div class="indicator-title">gₗ</div><div class="indicator-value">1.62</div><div class="indicator-unit">m/s²</div></div>
+                <div class="indicator"><div class="indicator-title">Altitudine</div><div class="indicator-value" id="altitude">1000</div><div class="indicator-unit">m</div></div>
+                <div class="indicator"><div class="indicator-title">Velocità</div><div class="indicator-value" id="velocity">0.0</div><div class="indicator-unit">m/s</div></div>
+                <div class="indicator"><div class="indicator-title">Carburante</div><div class="indicator-value" id="fuelDisplay">500</div><div class="indicator-unit">kg</div></div>
+            </div>
+        </div>
+
+        <div class="simulation-area">
+            <h2 class="panel-title">Simulazione di Allunaggio</h2>
+            <div class="canvas-container">
+                <canvas id="gameCanvas" width="700" height="400"></canvas>
+                <div class="moon-surface"></div>
+                <div class="landing-zone"></div>
+            </div>
+            <div class="status-message" id="statusMessage">
+                Pronto per l'allunaggio. Premi "Avvia Simulazione"
+            </div>
+            <div class="controls-info">
+                <div class="controls-row"><div class="key" id="keyW">W</div></div>
+                <div class="controls-row"><div class="key" id="keyA">A</div><div class="key" id="keyS">S</div><div class="key" id="keyD">D</div></div>
+                <div class="key-label">Usa WASD per controllare</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+  Creato da Gabriele Savino – Codice in 
+  <a href="https://github.com/tuo-username/tuo-repo" target="_blank" rel="noopener noreferrer">GitHub</a>
+</div>
+
+    <script>
+    // –– Costanti e pre‑calcoli ––
+    const GRAVITY_LUNAR = 1.62, SAFE_LANDING_SPEED = 5, INITIAL_ALTITUDE = 1000;
+    const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
+    const massInput = document.getElementById('mass'), thrustInput = document.getElementById('thrust'),
+          fuelInput = document.getElementById('fuel'),
+          startBtn = document.getElementById('startBtn'), resetBtn = document.getElementById('resetBtn'),
+          altitudeDisplay = document.getElementById('altitude'),
+          velocityDisplay = document.getElementById('velocity'),
+          fuelDisplay = document.getElementById('fuelDisplay'),
+          statusMessage = document.getElementById('statusMessage');
+    const keyEls = { w: 'keyW', a: 'keyA', s: 'keyS', d: 'keyD' };
+    const canvasWidth = canvas.width, canvasHeight = canvas.height, groundY = canvasHeight - 70;
+    // Stelle e crateri (pre‑calcolati)
+    const stars = Array.from({length:100}, () => ({ x:Math.random()*canvasWidth, y:Math.random()*canvasHeight*0.8, r:Math.random()*1.5 }));
+    const craters = Array.from({length:20}, () => ({ x:Math.random()*canvasWidth, y:groundY+10+Math.random()*50, r:5+Math.random()*15 }));
+    // Gradiente spazio
+    const spaceGradient = ctx.createLinearGradient(0,0,0,canvasHeight);
+    spaceGradient.addColorStop(0,'#0a1c29'); spaceGradient.addColorStop(1,'#1a2c39');
+    // Fuel consumption rate
+    let fuelConsumptionRate;
+
+    // Stato
+    const state = {
+        mass:0, thrustPower:0, fuel:0,
+        x:0,y:50, vx:0,vy:0, ax:0,ay:0,
+        altitude:INITIAL_ALTITUDE, velocity:0,
+        thrust:{ up:false,down:false,left:false,right:false },
+        running:false, landed:false, crashed:false,
+        lastTs:0, animId:0
+    };
+
+    // Inizializza simulazione
+    function initSimulation(){
+        state.mass = +massInput.value;
+        state.thrustPower = +thrustInput.value;
+        state.fuel = +fuelInput.value;
+        state.x = canvasWidth/2; state.y = 50;
+        state.vx = state.vy = state.ax = state.ay = 0;
+        state.altitude = INITIAL_ALTITUDE; state.velocity = 0;
+        state.running = true; state.landed = state.crashed = false;
+        state.lastTs = 0;
+        fuelConsumptionRate = state.thrustPower / 200;
+        altitudeDisplay.textContent = state.altitude.toFixed(0);
+        velocityDisplay.textContent = state.velocity.toFixed(1);
+        fuelDisplay.textContent = state.fuel.toFixed(0);
+        statusMessage.textContent = 'Discesa in corso... Usa WASD';
+        statusMessage.style.color = '#a0d2eb';
+        resetKeys();
+        cancelAnimationFrame(state.animId);
+        state.animId = requestAnimationFrame(gameLoop);
+    }
+
+    // Loop
+    function gameLoop(ts){
+        if(!state.lastTs) state.lastTs = ts;
+        const dt = (ts - state.lastTs)/1000;
+        state.lastTs = ts;
+        if(state.running && !state.landed){
+            updatePhysics(dt);
+            checkLanding();
+            render();
+            updateIndicators();
+            state.animId = requestAnimationFrame(gameLoop);
+        }
+    }
+
+    // Fisica
+    function updatePhysics(dt){
+        state.ay = GRAVITY_LUNAR; state.ax = 0;
+        const thrustAcc = state.thrustPower / state.mass;
+        let active = 0;
+        for(let dir in state.thrust) if(state.thrust[dir]) active++;
+        if(active && state.fuel>0){
+            if(state.thrust.up){ state.ay -= thrustAcc; }
+            if(state.thrust.down){ state.ay += thrustAcc; }
+            if(state.thrust.left){ state.ax -= thrustAcc; }
+            if(state.thrust.right){ state.ax += thrustAcc; }
+            state.fuel = Math.max(0, state.fuel - fuelConsumptionRate*dt*active);
+        }
+        state.vx += state.ax*dt; state.vy += state.ay*dt;
+        state.x += state.vx*dt; state.y += state.vy*dt;
+        state.altitude = Math.max(0, (groundY - state.y)*(INITIAL_ALTITUDE/(groundY-50)));
+        state.velocity = Math.hypot(state.vx, state.vy);
+        // Bordi
+        if(state.x<20){ state.x=20; state.vx*=-0.5; }
+        if(state.x>canvasWidth-20){ state.x=canvasWidth-20; state.vx*=-0.5; }
+        if(state.y<0){ state.y=0; state.vy=0; }
+    }
+
+    // Atterraggio
+    function checkLanding(){
+        if(state.y >= groundY-20){
+            state.y = groundY-20; state.landed = true; state.running = false;
+            const speedY = Math.abs(state.vy);
+            const left = (canvasWidth-100)/2, right = left+100;
+            const inZone = state.x>=left && state.x<=right;
+            if(speedY<=SAFE_LANDING_SPEED && inZone){
+                statusMessage.textContent = `ALLUNAGGIO RIUSCITO! Vel: ${speedY.toFixed(1)} m/s`;
+                statusMessage.style.color = '#92fe9d';
+            } else if(speedY<=SAFE_LANDING_SPEED){
+                statusMessage.textContent = `Atterraggio ok ma fuori zona! Vel: ${speedY.toFixed(1)} m/s`;
+                statusMessage.style.color = '#ffcc00';
+            } else {
+                statusMessage.textContent = `CRASH! Vel: ${speedY.toFixed(1)} m/s`;
+                statusMessage.style.color = '#ff5e62';
+                state.crashed = true;
+            }
+        }
+    }
+
+    // Rendering
+    function render(){
+        ctx.clearRect(0,0,canvasWidth,canvasHeight);
+        // spazio
+        ctx.fillStyle = spaceGradient; ctx.fillRect(0,0,canvasWidth,canvasHeight);
+        ctx.fillStyle='white';
+        for(let s of stars){ ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,2*Math.PI); ctx.fill(); }
+        // luna
+        ctx.fillStyle='#7d7d7d'; ctx.fillRect(0,groundY,canvasWidth,canvasHeight-groundY);
+        ctx.fillStyle='#5a5a5a';
+        for(let c of craters){ ctx.beginPath(); ctx.arc(c.x,c.y,c.r,0,2*Math.PI); ctx.fill(); }
+        // zona
+        const cx=canvasWidth/2;
+        ctx.fillStyle='rgba(0,255,0,0.3)'; ctx.beginPath(); ctx.arc(cx,groundY,40,0,2*Math.PI); ctx.fill();
+        ctx.strokeStyle='#00ff00'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,groundY,40,0,2*Math.PI); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx-20,groundY); ctx.lineTo(cx+20,groundY);
+        ctx.moveTo(cx,groundY-20); ctx.lineTo(cx,groundY+20); ctx.stroke();
+        // navicella
+        ctx.save(); ctx.translate(state.x,state.y); ctx.rotate(state.vx*0.01);
+        ctx.fillStyle='#fff'; ctx.beginPath(); ctx.moveTo(0,-15); ctx.lineTo(-10,10); ctx.lineTo(10,10); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#a0d2eb'; ctx.beginPath(); ctx.arc(0,-5,5,0,2*Math.PI); ctx.fill();
+        // fiamme
+        ctx.fillStyle = ctx.createLinearGradient(0,0,0,20);
+        ctx.fillStyle.addColorStop?.(0,'#ff9966');
+        ctx.fillStyle.addColorStop?.(0.5,'#ff5e62');
+        ctx.fillStyle.addColorStop?.(1,'transparent');
+        if(state.thrust.up && state.fuel>0) drawFlame(0,15,0,1);
+        if(state.thrust.down && state.fuel>0) drawFlame(0,-15,Math.PI,0.7);
+        if(state.thrust.left && state.fuel>0) drawFlame(15,0,Math.PI/2,0.8);
+        if(state.thrust.right && state.fuel>0) drawFlame(-15,0,-Math.PI/2,0.8);
+        ctx.restore();
+    }
+    function drawFlame(x,y,rot,scale){
+        ctx.save(); ctx.translate(x,y); ctx.rotate(rot); ctx.scale(scale,scale);
+        const h=15+Math.random()*10, w=8+Math.random()*5;
+        const g=ctx.createLinearGradient(0,0,0,h);
+        g.addColorStop(0,'#ff9966'); g.addColorStop(0.5,'#ff5e62'); g.addColorStop(1,'transparent');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(-w/2,0); ctx.lineTo(0,h); ctx.lineTo(w/2,0); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#ffcc00';
+        for(let i=0;i<5;i++){
+            ctx.beginPath();
+            ctx.arc(-w/2 + Math.random()*w, Math.random()*h, 1+Math.random()*2, 0, 2*Math.PI);
+            ctx.fill();
+        }
+        ctx.restore();
+    }
+
+    // Indicatori
+    function updateIndicators(){
+        altitudeDisplay.textContent = state.altitude.toFixed(0);
+        velocityDisplay.textContent = state.velocity.toFixed(1);
+        fuelDisplay.textContent = state.fuel.toFixed(0);
+    }
+
+    // Reset
+    function resetSimulation(){
+        state.running = false; state.landed = state.crashed = false;
+        cancelAnimationFrame(state.animId);
+        resetKeys();
+        state.fuel = +fuelInput.value;
+        state.altitude = INITIAL_ALTITUDE; state.velocity = 0;
+        altitudeDisplay.textContent = state.altitude.toFixed(0);
+        velocityDisplay.textContent = state.velocity.toFixed(1);
+        fuelDisplay.textContent = state.fuel.toFixed(0);
+        statusMessage.textContent = "Pronto per l'allunaggio. Premi 'Avvia Simulazione'";
+        statusMessage.style.color = '#a0d2eb';
+        state.x = canvasWidth/2; state.y = 50;
+        render();
+    }
+
+    // Tastiera
+    const keyMap = { 'w':'up','a':'left','s':'down','d':'right' };
+    function resetKeys(){
+        for(let k in keyEls) document.getElementById(keyEls[k]).classList.remove('active');
+    }
+    document.addEventListener('keydown', e=>{
+        const dir = keyMap[e.key];
+        if(dir && state.running && !state.landed){
+            state.thrust[dir] = true;
+            document.getElementById(keyEls[e.key]).classList.add('active');
+        }
+    });
+    document.addEventListener('keyup', e=>{
+        const dir = keyMap[e.key];
+        if(dir){
+            state.thrust[dir] = false;
+            document.getElementById(keyEls[e.key]).classList.remove('active');
+        }
+    });
+
+    // Eventi UI
+    startBtn.addEventListener('click', ()=>{ if(!state.running||state.landed) initSimulation(); });
+    resetBtn.addEventListener('click', resetSimulation);
+    [massInput,thrustInput,fuelInput].forEach(inp=>{
+        inp.addEventListener('input',()=>inp.value= Math.max(+inp.min, Math.min(+inp.max,+inp.value)));
+    });
+
+    // Avvio iniziale
+    window.onload = ()=>{ state.x=canvasWidth/2; state.y=50; render(); };
+    </script>
+</body>
+</html>
