@@ -1,0 +1,606 @@
+<!DOCTYPE html> <!-- Dichiara che questo documento è un documento HTML5 -->
+<html lang="it"> <!-- Elemento radice del documento; imposta la lingua su italiano -->
+<head> <!-- Inizio della sezione head che contiene le meta informazioni e gli stili -->
+  <meta charset="UTF-8"> <!-- Imposta la codifica dei caratteri su UTF-8 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Rende la pagina responsiva impostando la larghezza del viewport -->
+  <title>Breakout Arcade</title> <!-- Imposta il titolo della pagina visualizzato sulla scheda del browser -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"> <!-- Importa il font "Press Start 2P" da Google Fonts -->
+  <style>
+    body { 
+      margin: 0; /* Rimuove i margini predefiniti del browser */
+      display: flex; /* Attiva il layout flex per il body */
+      justify-content: center; /* Centra orizzontalmente gli elementi figli */
+      align-items: center; /* Centra verticalmente gli elementi figli */
+      min-height: 100vh; /* Imposta l'altezza minima del body pari all'altezza della finestra del browser */
+      background: #1a1a1a; /* Imposta lo sfondo del body a un grigio molto scuro */
+      font-family: 'Press Start 2P', cursive; /* Applica il font importato al testo della pagina */
+    }
+    #game-container { 
+      position: relative; /* Permette il posizionamento assoluto degli elementi figli (es. overlay) */
+      border: 2px solid #00ff00; /* Aggiunge un bordo verde di 2 pixel */
+      border-radius: 5px; /* Arrotonda gli angoli del container */
+      overflow: hidden; /* Nasconde ogni contenuto che esce dai bordi del container */
+    }
+    canvas { 
+      background: #000; /* Imposta lo sfondo del canvas a nero */
+      display: block; /* Elimina gli spazi bianchi indesiderati attorno al canvas */
+    }
+    .game-info { 
+      position: absolute; /* Posiziona l'elemento in modo assoluto rispetto al container */
+      top: 10px; /* Posiziona l'elemento a 10px dal bordo superiore */
+      color: #fff; /* Imposta il colore del testo a bianco */
+      padding: 5px 10px; /* Aggiunge padding interno (5px verticalmente e 10px orizzontalmente) */
+      background: rgba(0,0,0,0.7); /* Imposta uno sfondo nero trasparente */
+      font-size: 14px; /* Imposta la dimensione del font a 14px */
+    }
+    #score { left: 10px; } /* Posiziona il punteggio 10px dal bordo sinistro */
+    #lives { right: 10px; } /* Posiziona il conteggio delle vite 10px dal bordo destro */
+    .overlay { 
+      position: absolute; /* Posiziona l'overlay in maniera assoluta rispetto al container */
+      top: 0; left: 0; /* Allinea l'overlay all'angolo in alto a sinistra */
+      width: 100%; height: 100%; /* L'overlay copre l'intera area del container */
+      background: rgba(0,0,0,0.9); /* Sfondo nero quasi opaco per oscurare il contenuto sottostante */
+      display: flex; /* Utilizza flexbox per disporre i contenuti all'interno */
+      justify-content: center; /* Centra i contenuti orizzontalmente */
+      align-items: center; /* Centra i contenuti verticalmente */
+      flex-direction: column; /* Dispone i contenuti in colonna */
+      color: #fff; /* Imposta il colore del testo a bianco */
+      text-align: center; /* Centra il testo all'interno dell'overlay */
+    }
+    .hidden { display: none; } /* Classe per nascondere un elemento (non visualizzato) */
+    .menu { 
+      padding: 20px; /* Aggiunge padding interno al menu */
+      border: 2px solid #fff; /* Aggiunge un bordo bianco di 2px attorno al menu */
+    }
+    h1 { 
+      font-size: 2em; /* Imposta la dimensione del carattere dell'intestazione */
+      margin-bottom: 20px; /* Aggiunge un margine inferiore all'intestazione */
+      color: #00ff00; /* Imposta il colore dell'intestazione a verde */
+    }
+    .btn { 
+      padding: 10px 20px; /* Aggiunge spazio interno (padding) al bottone */
+      margin: 10px; /* Aggiunge un margine attorno al bottone */
+      background: #000; /* Sfondo nero per il bottone */
+      color: #fff; /* Colore del testo bianco per il bottone */
+      border: 2px solid #fff; /* Bordo bianco di 2px intorno al bottone */
+      cursor: pointer; /* Cambia il cursore in un puntatore quando si passa sopra il bottone */
+      transition: 0.2s; /* Aggiunge una transizione di 0,2 secondi per le variazioni di stile */
+    }
+    .btn:hover { 
+      background: #00ff00; /* Cambia lo sfondo del bottone a verde al passaggio del mouse */
+      color: #000; /* Cambia il colore del testo a nero al passaggio del mouse */
+    }
+    p { margin: 10px 0; } /* Imposta un margine verticale per i paragrafi */
+    .block-border {
+        stroke: #fff; /* Imposta il colore del bordo (se usato in elementi SVG) a bianco */
+        stroke-width: 3px; /* Imposta lo spessore del bordo a 3px */
+    }
+  </style> <!-- Fine della sezione degli stili CSS -->
+</head> <!-- Fine della sezione head -->
+<body> <!-- Inizio del corpo del documento -->
+  <div id="game-container"> <!-- Container principale che racchiude tutti gli elementi del gioco -->
+    <!-- Schermata iniziale con spiegazione base -->
+    <div id="main-menu" class="overlay"> <!-- Overlay del menu principale, visibile all'avvio -->
+      <div class="menu"> <!-- Contenitore per gli elementi del menu -->
+        <h1>BREAKOUT ARCADE</h1> <!-- Intestazione principale del gioco -->
+        <button class="btn" onclick="showInstructions()">GIOCA</button> <!-- Bottone che, al click, richiama la funzione showInstructions() per mostrare le istruzioni -->
+      </div>
+    </div>
+    
+    <!-- Schermata istruzioni -->
+    <div id="instructions-screen" class="overlay hidden"> <!-- Overlay per le istruzioni, nascosto inizialmente con la classe "hidden" -->
+      <div class="menu"> <!-- Contenitore per il menu delle istruzioni -->
+        <h1>Controlli</h1> <!-- Intestazione per la sezione dei controlli -->
+        <p>
+          Usa il mouse per muovere la paletta<br> <!-- Istruzione per il controllo col mouse -->
+          Premi SPAZIO per lanciare la pallina<br> <!-- Istruzione sul lancio della pallina con la barra spaziatrice -->
+          Premi P per la pausa<br> <!-- Istruzione per mettere in pausa il gioco -->
+        </p>
+        <button class="btn" onclick="initAndReadyGame()">Inizia</button> <!-- Bottone per iniziare il gioco, invoca la funzione initAndReadyGame() -->
+      </div>
+    </div>
+    
+    <!-- Overlay per pausa -->
+    <div id="pause-screen" class="overlay hidden"> <!-- Overlay per il gioco in pausa, disabilitato inizialmente -->
+      <div class="menu"> <!-- Contenitore per il menu della pausa -->
+        <h1>PAUSA</h1> <!-- Intestazione che mostra "PAUSA" -->
+        <button class="btn" onclick="togglePause()">Riprendi</button> <!-- Bottone per riprendere il gioco, richiama togglePause() -->
+      </div>
+    </div>
+    
+    <canvas id="game-canvas" width="576" height="700"></canvas> <!-- Elemento canvas dove viene disegnato il gioco, con dimensioni specificate -->
+    <div id="score" class="game-info">PUNTEGGIO: 0</div> <!-- Elemento per visualizzare il punteggio, inizialmente impostato a 0 -->
+    <div id="lives" class="game-info">VITE: 3</div> <!-- Elemento per mostrare il numero di vite, inizialmente impostato a 3 -->
+    <!-- Schermata Game Over, inizialmente nascosta grazie alla classe "hidden" -->
+    <div id="game-over" class="overlay hidden"> 
+      <!-- Container del menu Game Over -->
+      <div class="menu">
+        <h1>GAME OVER</h1> <!-- Intestazione che mostra "GAME OVER" -->
+        <p id="final-score">PUNTEGGIO: 0</p> <!-- Paragrafo che mostrerà il punteggio finale -->
+        <!-- Bottone per rigiocare, che richiama la funzione initAndReadyGame() -->
+        <button class="btn" onclick="initAndReadyGame()">RIGIOCA</button>
+        <!-- Bottone per tornare al menu principale, che richiama showMainMenu() -->
+        <button class="btn" onclick="showMainMenu()">MENU</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Inizio della sezione JavaScript -->
+  <script>
+    // Oggetto di configurazione contenente dimensioni, velocità e colori
+    const CONFIG = {
+      DIM: { 
+        W: 576,            // Larghezza del canvas
+        H: 700,            // Altezza del canvas
+        PADDLE_W: 120,     // Larghezza della paletta
+        PADDLE_H: 15,      // Altezza della paletta
+        BALL_R: 10,        // Raggio della pallina
+        BLOCK_W: 70,       // Larghezza di ogni blocco
+        BLOCK_H: 25,       // Altezza di ogni blocco
+        BLOCK_SP: 5        // Spaziatura tra i blocchi
+      },
+      SPEED: { 
+        BALL: 5,           // Velocità base della pallina
+        PADDLE: 8,         // Velocità di spostamento della paletta
+        POWERUP: 2         // Velocità di caduta dei power-up
+      },
+      // Elenco di colori usati per i blocchi (definiti in ordine)
+      COLORS: ['#FF5555','#55FF55','#5555FF','#FFFF55']
+    };
+
+    /// Stato del gioco: oggetto che memorizza le proprietà e le entità del gioco
+    let game = { 
+      paddleX: CONFIG.DIM.W / 2, // Posizione orizzontale iniziale della paletta (centrata)
+      balls: [],               // Array delle palline attive
+      blocks: [],              // Array dei blocchi
+      powerups: [],            // Array dei power-up attivi
+      particles: [],           // Array delle particelle per gli effetti "spark"
+      lives: 3,                // Numero iniziale di vite
+      score: 0,                // Punteggio iniziale a 0
+      running: false,          // Flag che indica se il gioco è in corso
+      paused: false,           // Flag che indica se il gioco è in pausa
+      ballReady: false,        // Flag: se la pallina principale è "attaccata" al paddle e in attesa del lancio
+      blocksDestroyed: false   // Flag per determinare se tutti i blocchi sono stati distrutti
+    };
+
+    // Recupera il riferimento al canvas e al contesto di disegno 2D
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // FUNZIONE: Inizializza il gioco (setup iniziale per blocchi, HUD, ecc.)
+    function initGame() {
+      game.paddleX = CONFIG.DIM.W / 2; // Riposiziona la paletta al centro
+      // Inizializzazione semplificata dei blocchi
+      game.blocks = []; // Svuota l'array dei blocchi
+      const cols = 7, rows = 5; // Numero di colonne e righe per i blocchi
+      // Calcola la larghezza totale dei blocchi (inclusi gli spazi) e il punto di partenza per centrarli
+      const totalW = cols * (CONFIG.DIM.BLOCK_W + CONFIG.DIM.BLOCK_SP) - CONFIG.DIM.BLOCK_SP;
+      const startX = (CONFIG.DIM.W - totalW) / 2;
+      
+      // Ciclo per creare i blocchi riga per riga e colonna per colonna
+      for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+              // Genera un blocco solo se la probabilità random (80%) lo consente
+              if (Math.random() < 0.8) {
+                  game.blocks.push({
+                      x: startX + c * (CONFIG.DIM.BLOCK_W + CONFIG.DIM.BLOCK_SP), // Posizione x del blocco
+                      y: 50 + r * (CONFIG.DIM.BLOCK_H + CONFIG.DIM.BLOCK_SP),        // Posizione y del blocco (offset verticale di 50)
+                      hits: Math.random() < 0.5 ? 2 : 1,  // Imposta 1 o 2 vite al blocco (50% probabilità)
+                      color: CONFIG.COLORS[r % CONFIG.COLORS.length], // Assegna il colore in base alla riga
+                      active: true // Flag che indica se il blocco è attivo (non ancora distrutto)
+                  });
+              }
+          }
+      }
+      
+      game.blocksDestroyed = false; // Resetta il flag dei blocchi distrutti
+      game.powerups = [];            // Svuota l'array dei power-up
+      game.particles = [];           // Svuota l'array delle particelle
+      game.lives = 3;                // Ripristina le vite a 3
+      game.score = 0;                // Azzerra il punteggio
+      updateHUD();                   // Aggiorna la HUD (punteggio e vite)
+    }
+
+    // FUNZIONE: Rigenera i blocchi (solo la parte relativo ai blocchi) quando sono stati distrutti
+    function regenerateBlocks() {
+      game.blocks = []; // Svuota l'array dei blocchi
+      const cols = 7, rows = 5; // Numero di colonne e righe
+      const totalW = cols * (CONFIG.DIM.BLOCK_W + CONFIG.DIM.BLOCK_SP) - CONFIG.DIM.BLOCK_SP;
+      const startX = (CONFIG.DIM.W - totalW) / 2; // Calcola la posizione iniziale in x per centrare i blocchi
+      // Cicla per righe e colonne per ricreare i blocchi
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (Math.random() < 0.8) { // Probabilità dell'80% di creare un blocco
+            game.blocks.push({
+              x: startX + c * (CONFIG.DIM.BLOCK_W + CONFIG.DIM.BLOCK_SP), // Posizione x del blocco
+              y: 50 + r * (CONFIG.DIM.BLOCK_H + CONFIG.DIM.BLOCK_SP),        // Posizione y del blocco
+              hits: Math.random() < 0.5 ? 2 : 1, // Imposta 1 o 2 vite al blocco
+              color: CONFIG.COLORS[r % CONFIG.COLORS.length], // Colore assegnato in base alla riga
+              active: true  // Il blocco è attivo (non distrutto)
+            });
+          }
+        }
+      }
+      game.blocksDestroyed = false; // Resetta il flag che indica che i blocchi sono stati distrutti
+    }
+
+    // FUNZIONE: Aggiorna gli elementi dell'HUD (punteggio e vite)
+    function updateHUD() {
+      // Aggiorna l'elemento con ID "score" con il punteggio attuale
+      document.getElementById('score').textContent = `PUNTEGGIO: ${game.score}`;
+      // Aggiorna l'elemento con ID "lives" con il numero di vite attuali
+      document.getElementById('lives').textContent = `VITE: ${game.lives}`;
+    }
+
+    /* --- FUNZIONI DI DISEGNO --- */
+
+    // FUNZIONE: Disegna tutti i blocchi sul canvas
+    function drawBlocks() {
+      game.blocks.forEach(block => {
+          // Disegna solo se il blocco risulta attivo
+          if (block.active) {
+              ctx.fillStyle = block.color; // Imposta il colore di riempimento al colore del blocco
+              // Disegna un rettangolo che rappresenta il blocco
+              ctx.fillRect(block.x, block.y, CONFIG.DIM.BLOCK_W, CONFIG.DIM.BLOCK_H);
+
+              // Se il blocco ha 2 vite, aggiunge un bordo bianco spesso per evidenziare
+              if (block.hits === 2) {
+                  ctx.strokeStyle = '#FFFFFF'; // Imposta il colore del bordo a bianco
+                  ctx.lineWidth = 3;             // Imposta lo spessore del bordo a 3px
+                  ctx.strokeRect(
+                      block.x + 2,               // Coordinate x leggermente spostate
+                      block.y + 2,               // Coordinate y leggermente spostate
+                      CONFIG.DIM.BLOCK_W - 4,    // Larghezza rettificata per compensare lo spostamento
+                      CONFIG.DIM.BLOCK_H - 4     // Altezza rettificata
+                  );
+              }
+          }
+      });
+    }
+
+    // FUNZIONE: Disegna la paletta sul canvas
+    function drawPaddle() {
+      ctx.fillStyle = '#00FF00'; // Imposta il colore della paletta a verde
+      // Disegna il rettangolo della paletta centrato in base a game.paddleX
+      ctx.fillRect(game.paddleX - CONFIG.DIM.PADDLE_W / 2, CONFIG.DIM.H - 30, CONFIG.DIM.PADDLE_W, CONFIG.DIM.PADDLE_H);
+    }
+
+    // FUNZIONE: Disegna tutte le palline sul canvas
+    function drawBalls() {
+      game.balls.forEach(ball => {
+        ctx.beginPath(); // Inizia un nuovo percorso per disegnare la pallina
+        // Crea un arco che rappresenta la pallina
+        ctx.arc(ball.x, ball.y, ball.r, 0, 2 * Math.PI);
+        ctx.fillStyle = ball.color; // Imposta il colore della pallina
+        ctx.fill(); // Riempe l'arco disegnato con il colore specificato
+      });
+    }
+
+    // FUNZIONE: Disegna i power-up sul canvas
+    function drawPowerups() {
+      game.powerups.forEach(pu => {
+        ctx.fillStyle = pu.color; // Imposta il colore del power-up
+        ctx.beginPath();          // Inizia un nuovo percorso per il power-up
+        // Disegna un cerchio che rappresenta il power-up, con raggio fisso a 8
+        ctx.arc(pu.x, pu.y, 8, 0, 2 * Math.PI);
+        ctx.fill(); // Riempe l'arco del power-up
+      });
+    }
+
+    // FUNZIONE: Disegna le particelle (effetto "spark") sul canvas
+    function drawParticles() {
+      game.particles.forEach(p => {
+        ctx.globalAlpha = p.life / 30; // Imposta la trasparenza in funzione della vita residua della particella
+        ctx.fillStyle = p.color;         // Imposta il colore della particella
+        // Disegna la particella come un piccolo rettangolo (2x2 pixel)
+        ctx.fillRect(p.x, p.y, 2, 2);
+        ctx.globalAlpha = 1;             // Ripristina l'opacità per il disegno successivo
+      });
+    }
+
+    // FUNZIONE: Disegna l'intero stato del gioco: blocchi, paletta, palline, power-up e particelle
+    function draw() {
+      ctx.clearRect(0, 0, CONFIG.DIM.W, CONFIG.DIM.H); // Pulisce l'intero canvas
+      drawBlocks();   // Disegna i blocchi
+      drawPaddle();   // Disegna la paletta
+      drawBalls();    // Disegna le palline
+      drawPowerups(); // Disegna i power-up
+      drawParticles();// Disegna le particelle degli effetti spark
+    }
+
+    /* --- FUNZIONI DI AGGIORNAMENTO --- */
+
+    // FUNZIONE: Aggiorna la posizione e la logica di tutte le palline
+    function updateBalls() {
+      // Cicla all'indietro nell'array delle palline per poter rimuovere elementi se necessario
+      for (let i = game.balls.length - 1; i >= 0; i--) {
+          let ball = game.balls[i]; // Estrae la pallina corrente
+
+          // Se la pallina principale è in modalità "pronta" (attaccata al paddle) non va a muoversi
+          if (ball.isMain && game.ballReady) {
+              ball.x = game.paddleX;            // La pallina segue la posizione orizzontale della paletta
+              ball.y = CONFIG.DIM.H - 50;         // Posiziona la pallina poco sopra la base del canvas
+              continue;                         // Salta al prossimo ciclo
+          }
+
+          // Aggiorna la posizione della pallina aggiungendo le velocità dx (orizzontale) e dy (verticale)
+          ball.x += ball.dx;
+          ball.y += ball.dy;
+
+          // Controlla se la pallina tocca il bordo sinistro o destro del canvas
+          if (ball.x < ball.r || ball.x > CONFIG.DIM.W - ball.r) {
+              ball.dx *= -1;         // Inverte la direzione orizzontale
+              spark(ball.x, ball.y);  // Genera un effetto spark alla collisione
+          }
+          // Controlla se la pallina tocca il bordo superiore del canvas
+          if (ball.y < ball.r) {
+              ball.dy *= -1;         // Inverte la direzione verticale
+              spark(ball.x, ball.y);  // Genera l'effetto spark alla collisione
+          }
+
+          // Se la pallina esce dalla parte inferiore del canvas
+          if (ball.y > CONFIG.DIM.H) {
+              if (ball.isMain) {          // Se è la pallina principale:
+                  game.balls.splice(i, 1);  // Rimuovila dall'array delle palline
+                  game.lives--;             // Decrementa il numero di vite
+                  updateHUD();              // Aggiorna l'HUD con il nuovo numero di vite e punteggio
+                  if (game.lives > 0) {
+                      spawnMainBall();      // Se ci sono vite residue, genera una nuova pallina principale
+                  } else {
+                      endGame();            // Altrimenti, termina il gioco mostrando la schermata Game Over
+                  }
+              } else {                      // Se non è la pallina principale:
+                  game.balls.splice(i, 1);  // Rimuovi la pallina extra dall'array
+              }
+              continue; // Passa alla prossima pallina
+          }
+
+          // Controlla se la pallina colpisce la paletta:
+          // Verifica che la pallina sia sopra la linea di collisione (CONFIG.DIM.H - 30) 
+          // e che la sua coordinata x sia all'interno della larghezza della paletta
+          if (ball.y + ball.r > CONFIG.DIM.H - 30 &&
+              ball.x > game.paddleX - CONFIG.DIM.PADDLE_W / 2 &&
+              ball.x < game.paddleX + CONFIG.DIM.PADDLE_W / 2) {
+              ball.dy = -Math.abs(ball.dy);                      // Imposta la direzione verticale verso l'alto
+              ball.dx += (ball.x - game.paddleX) * 0.03;           // Modifica la direzione orizzontale in base al punto di impatto
+              spark(ball.x, ball.y);                             // Genera l'effetto spark
+              // Se la pallina principale ha appena colpito la paletta e tutti i blocchi sono distrutti
+              if (ball.isMain && game.blocksDestroyed) {
+                  regenerateBlocks(); // Ricrea la disposizione dei blocchi
+              }
+          }
+
+          // Verifica le collisioni con ciascun blocco
+          game.blocks.forEach(block => {
+              if (block.active &&                                    // Il blocco deve essere attivo
+                  ball.x > block.x &&                                // La coordinata x della pallina deve essere maggiore del bordo sinistro del blocco
+                  ball.x < block.x + CONFIG.DIM.BLOCK_W &&           // E minore del bordo destro
+                  ball.y > block.y &&                                // La coordinata y della pallina deve essere maggiore della parte superiore del blocco
+                  ball.y < block.y + CONFIG.DIM.BLOCK_H) {           // E minore della parte inferiore del blocco
+                  ball.dy *= -1;           // Inverte la direzione verticale della pallina
+                  block.hits--;            // Decrementa il numero di colpi (vite) del blocco
+                  // Genera lo spark al centro del blocco
+                  spark(block.x + CONFIG.DIM.BLOCK_W / 2, block.y + CONFIG.DIM.BLOCK_H / 2);
+                  
+                  // Se il blocco non ha più vite
+                  if (block.hits <= 0) {
+                      block.active = false; // Imposta il blocco come non attivo (distrutto)
+                      game.score += 10;     // Incrementa il punteggio
+                      updateHUD();          // Aggiorna l'HUD
+                      
+                      // Possibilità del 25% di generare un power-up al centro del blocco
+                      if (Math.random() < 0.25) {
+                          game.powerups.push({
+                              x: block.x + CONFIG.DIM.BLOCK_W / 2, // Posizione x al centro del blocco
+                              y: block.y + CONFIG.DIM.BLOCK_H / 2, // Posizione y al centro del blocco
+                              type: Math.random() < 0.5 ? 'extra' : 'speed',  // Tipo di power-up: 'extra' o 'speed'
+                              color: '#FFFF00'                     // Colore del power-up (giallo)
+                          });
+                      }
+                  }
+              }
+          });
+      }
+
+      // Se tutti i blocchi sono stati distrutti, imposta il flag per rigenerarli
+      if (game.blocks.every(block => !block.active)) {
+          game.blocksDestroyed = true;
+      }
+    }
+
+    // FUNZIONE: Aggiorna la posizione e gli eventi per i power-up
+    function updatePowerups() {
+      // Cicla all'indietro nell'array dei power-up per poter rimuovere quelli usciti
+      for (let i = game.powerups.length - 1; i >= 0; i--) {
+        let pu = game.powerups[i]; // Estrae il power-up corrente
+        pu.y += CONFIG.SPEED.POWERUP; // Aggiorna la posizione verticale in base alla velocità
+        if (pu.y > CONFIG.DIM.H) { 
+          game.powerups.splice(i, 1); // Se il power-up esce dal canvas, rimuovilo
+          continue; // Passa al prossimo power-up
+        }
+        // Controlla se il power-up tocca la paletta
+        if (pu.y > CONFIG.DIM.H - 30 &&
+            pu.x > game.paddleX - CONFIG.DIM.PADDLE_W / 2 &&
+            pu.x < game.paddleX + CONFIG.DIM.PADDLE_W / 2) {
+          // Se il tipo di power-up è "extra", genera una pallina extra
+          if (pu.type === 'extra') {
+            spawnExtraBall();
+          } else {
+            // Se il tipo è "speed", aumenta la velocità di tutte le palline
+            game.balls.forEach(b => {
+              b.dx *= 1.2; // Incrementa la velocità orizzontale del 20%
+              b.dy *= 1.2; // Incrementa la velocità verticale del 20%
+              // Dopo 8 secondi, ripristina la velocità originale
+              setTimeout(() => { 
+                b.dx /= 1.2; 
+                b.dy /= 1.2; 
+              }, 8000);
+            });
+          }
+          game.powerups.splice(i, 1); // Rimuovi il power-up acquisito
+        }
+      }
+    }
+
+    // FUNZIONE: Aggiorna la posizione e lo stato delle particelle (effetto spark)
+    function updateParticles() {
+      // Usa filter per mantenere solo le particelle ancora vive (life > 0)
+      game.particles = game.particles.filter(p => { 
+        p.x += p.dx;   // Aggiorna la posizione x della particella
+        p.y += p.dy;   // Aggiorna la posizione y della particella
+        p.life--;      // Decrementa la vita residua della particella
+        return p.life > 0; // Mantieni la particella se ha ancora vita
+      });
+    }
+
+    // FUNZIONE: Aggiorna l'intero stato del gioco (palline, power-up e particelle)
+    function update() {
+      updateBalls();    // Aggiorna la logica e la posizione delle palline
+      updatePowerups(); // Aggiorna la logica e la posizione dei power-up
+      updateParticles();// Aggiorna le particelle degli effetti spark
+    }
+
+    // FUNZIONE: Ciclo principale di animazione del gioco
+    function loop() {
+      if (!game.paused) { // Se il gioco non è in pausa:
+        draw();         // Ridisegna il canvas
+        update();       // Aggiorna lo stato del gioco
+      }
+      // Se il gioco è in esecuzione e non è in pausa, richiede un nuovo ciclo di animazione
+      if (game.running && !game.paused) {
+        requestAnimationFrame(loop);
+      }
+    }
+
+    // FUNZIONE: Genera particelle (spark) in corrispondenza delle collisioni
+    function spark(x, y) {
+      for (let i = 0; i < 10; i++) { // Genera 10 particelle per ogni spark
+        game.particles.push({
+          x: x,                       // Posizione iniziale x uguale al punto di impatto
+          y: y,                       // Posizione iniziale y uguale al punto di impatto
+          dx: (Math.random() - 0.5) * 4, // Velocità orizzontale casuale
+          dy: (Math.random() - 0.5) * 4, // Velocità verticale casuale
+          color: '#FFF',              // Colore della particella (bianco)
+          life: 30                    // Durata (vita) della particella in frame
+        });
+      }
+    }
+
+    // FUNZIONE: Crea la pallina principale in modalità "pronta"
+    // La pallina viene inizialmente ferma sull'area del paddle, in attesa del lancio
+    function spawnMainBall() {
+      game.balls.push({
+        x: game.paddleX,         // Posiziona la pallina in corrispondenza della paletta
+        y: CONFIG.DIM.H - 50,      // Posiziona la pallina poco sopra il fondo del canvas
+        dx: 0,                   // Velocità orizzontale iniziale nulla (ferma)
+        dy: 0,                   // Velocità verticale iniziale nulla (ferma)
+        r: CONFIG.DIM.BALL_R,    // Imposta il raggio della pallina dalla configurazione
+        isMain: true,            // Indicator che questa pallina è la principale
+        color: '#FFF'            // Colore della pallina principale (bianco)
+      });
+      game.ballReady = true;     // Imposta che la pallina è pronta per essere lanciata
+    }
+
+    // FUNZIONE: Crea una pallina extra (power-up) con proprietà differenti
+    function spawnExtraBall() {
+      game.balls.push({
+        x: game.paddleX,   // Posiziona la pallina extra in corrispondenza della paletta
+        y: CONFIG.DIM.H - 50,  // Posiziona la pallina extra poco sopra il fondo del canvas
+        dx: CONFIG.SPEED.BALL * (Math.random() > 0.5 ? 1 : -1), // Imposta una velocità orizzontale casuale (sinistra o destra)
+        dy: -CONFIG.SPEED.BALL, // Imposta la velocità verticale in senso opposto per lanciarla verso l'alto
+        r: CONFIG.DIM.BALL_R,    // Raggio della pallina extra uguale a quello della pallina principale
+        isMain: false,           // Indicator che questa non è la pallina principale
+        color: '#FFAA00'         // Colore diverso per distinguere la pallina extra (arancione)
+      });
+    }
+
+    // FUNZIONE: Alterna lo stato di pausa del gioco
+    function togglePause() {
+      game.paused = !game.paused; // Inverte il flag pausa
+      const pauseScreen = document.getElementById('pause-screen'); // Recupera l'overlay della pausa
+      if (game.paused) {
+        pauseScreen.classList.remove('hidden'); // Se il gioco è in pausa, mostra l'overlay
+      } else {
+        pauseScreen.classList.add('hidden');    // Altrimenti, nascondi l'overlay
+        loop();                                 // Riprende il ciclo di animazione
+      }
+    }
+
+    // FUNZIONE: Mostra la schermata delle istruzioni nascondendo il menu principale
+    function showInstructions() {
+      document.getElementById('main-menu').classList.add('hidden');         // Nasconde il menu principale
+      document.getElementById('instructions-screen').classList.remove('hidden'); // Mostra la schermata delle istruzioni
+    }
+
+    // FUNZIONE: Inizializza il gioco e prepara la pallina in modalità "pronta"
+    function initAndReadyGame() {
+      document.getElementById('instructions-screen').classList.add('hidden'); // Nasconde le istruzioni
+      document.getElementById('game-over').classList.add('hidden');           // Nasconde la schermata Game Over
+      initGame();         // Inizializza le variabili di gioco (blocchi, punteggio, vite, ecc.)
+      game.running = true; // Imposta lo stato del gioco come in esecuzione
+      game.paused = false; // Assicura che il gioco non sia in pausa
+      game.balls = [];   // Elimina eventuali palline residue da precedenti partite
+      spawnMainBall();   // Crea la pallina principale in modalità "pronta"
+      loop();            // Avvia il ciclo di animazione del gioco
+    }
+
+    // FUNZIONE: Mostra il menu principale dopo il Game Over
+    function showMainMenu() {
+      document.getElementById('game-over').classList.add('hidden');    // Nasconde l'overlay Game Over
+      document.getElementById('main-menu').classList.remove('hidden');   // Mostra il menu principale
+    }
+
+    // FUNZIONE: Termina il gioco e mostra la schermata Game Over
+    function endGame() {
+      game.running = false; // Ferma il gioco
+      // Imposta il testo finale del punteggio nell'elemento 'final-score'
+      document.getElementById('final-score').textContent = `PUNTEGGIO: ${game.score}`;
+      // Mostra l'overlay Game Over
+      document.getElementById('game-over').classList.remove('hidden');
+    }
+
+    /* --- EVENTI DI INPUT --- */
+
+    // EVENTO: Gestisce il movimento della paletta tramite tasti ArrowLeft e ArrowRight
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') {
+        // Sposta la paletta verso sinistra, senza superare il bordo sinistro
+        game.paddleX = Math.max(game.paddleX - CONFIG.SPEED.PADDLE, CONFIG.DIM.PADDLE_W / 2);
+      }
+      if (e.key === 'ArrowRight') {
+        // Sposta la paletta verso destra, senza superare il bordo destro
+        game.paddleX = Math.min(game.paddleX + CONFIG.SPEED.PADDLE, CONFIG.DIM.W - CONFIG.DIM.PADDLE_W / 2);
+      }
+      // Se viene premuta la barra spaziatrice e la pallina è in stato "pronto"
+      if (e.key === ' ' && game.ballReady) {
+        // Per ciascuna pallina attiva:
+        game.balls.forEach(ball => {
+          if (ball.isMain) { // Solo per la pallina principale
+            // Imposta una velocità orizzontale casuale (destra o sinistra)
+            ball.dx = CONFIG.SPEED.BALL * (Math.random() > 0.5 ? 1 : -1);
+            ball.dy = -CONFIG.SPEED.BALL; // Imposta la velocità verticale in modo che la pallina si muova verso l'alto
+          }
+        });
+        game.ballReady = false; // La pallina non è più "pronta" ed è stata lanciata
+      }
+      // Se viene premuto il tasto "P" (per mettere in pausa)
+      if (e.key === 'p' || e.key === 'P') {
+        if (game.running) togglePause(); // Se il gioco è in esecuzione, invoca la funzione togglePause()
+      }
+    });
+
+    // EVENTO: Gestisce il movimento del mouse per spostare la paletta
+    canvas.addEventListener('mousemove', function(e) {
+      const rect = canvas.getBoundingClientRect();          // Recupera le dimensioni e la posizione del canvas sullo schermo
+      game.paddleX = e.clientX - rect.left;                  // Imposta la posizione della paletta in base alla posizione orizzontale del mouse
+    });
+
+    // EVENTO: Gestisce il movimento su dispositivi touch per spostare la paletta
+    canvas.addEventListener('touchmove', function(e) {
+      const rect = canvas.getBoundingClientRect();            // Recupera le dimensioni e la posizione del canvas
+      game.paddleX = e.touches[0].clientX - rect.left;         // Imposta la posizione della paletta in base al tocco
+      e.preventDefault();                                      // Previene il comportamento di default dello scroll
+    }, {passive: false});
+  </script>
+</body>
+</html>
