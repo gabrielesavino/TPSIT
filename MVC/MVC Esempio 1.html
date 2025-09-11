@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MVC</title>
+    <style>
+        body { text-align: center; padding: 50px; font-family: Arial; }
+        #counter { font-size: 50px; margin: 20px; color: #007bff; }
+        button { font-size: 20px; padding: 10px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <div id="counter">0</div>
+    <button onclick="controller.add()">+</button>
+    <button onclick="controller.sub()">-</button>
+    <button onclick="controller.reset()">Reset</button>
+
+    <script>
+        // MODEL - i dati
+        const model = {
+            value: 0,
+            observers: [],
+            
+            change(newValue) {
+                this.value = newValue;
+                this.observers.forEach(fn => fn());
+            }
+        };
+
+        // VIEW - l'interfaccia  
+        const view = {
+            show(value) {
+                document.getElementById('counter').textContent = value;
+            }
+        };
+
+        // CONTROLLER - coordina tutto
+        const controller = {
+            add() { model.change(model.value + 1); },
+            sub() { model.change(model.value - 1); },
+            reset() { model.change(0); },
+            
+            init() {
+                model.observers.push(() => view.show(model.value));
+                view.show(model.value);
+            }
+        };
+
+        controller.init();
+    </script>
+</body>
+</html>
