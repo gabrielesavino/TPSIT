@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Esercizi Vue.js</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 8px 15px; margin: 5px; cursor: pointer; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h2>1. Login Utente</h2>
+        <button @click="isLoggedIn = !isLoggedIn">{{ isLoggedIn ? 'Logout' : 'Login' }}</button>
+        <p v-if="isLoggedIn">Benvenuto, Utente!</p>
+        <p v-else>Per favore, accedi.</p>
+
+        <hr />
+
+        <h2>2. Semaforo</h2>
+        <button @click="coloreSemaforo = 'rosso'">Rosso</button>
+        <button @click="coloreSemaforo = 'giallo'">Giallo</button>
+        <button @click="coloreSemaforo = 'verde'">Verde</button>
+        <p v-if="coloreSemaforo === 'rosso'">Stop</p>
+        <p v-if="coloreSemaforo === 'giallo'">Attenzione</p>
+        <p v-if="coloreSemaforo === 'verde'">Vai!</p>
+
+        <hr />
+
+        <h2>3. Classifica Team Sportivi</h2>
+        <ol>
+            <li v-for="team in teamSportivi" :key="team">{{ team }}</li>
+        </ol>
+
+        <hr />
+
+        <h2>4. Catalogo Prodotti</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Prezzo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="prodotto in prodotti" :key="prodotto.id">
+                    <td>{{ prodotto.id }}</td>
+                    <td>{{ prodotto.nome }}</td>
+                    <td>€{{ prodotto.prezzo.toFixed(2) }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
