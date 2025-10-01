@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esercizi Vue.js</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .exercise {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .exercise h2 {
+            color: #0066cc;
+            margin-top: 0;
+        }
+
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-right: 10px;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #0052a3;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .user-info {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .user-info p {
+            margin: 8px 0;
+        }
+
+        .product-info {
+            background-color: #fff8e1;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 18px;
+        }
+
+        .tooltip-box {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            cursor: help;
+            border: 2px dashed #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Esercizi Vue.js</h1>
+
+        <!-- Esercizio 1: Profilo Utente -->
+        <div class="exercise">
+            <h2>1. Profilo Utente</h2>
+            <div class="user-info">
+                <p><strong>Nome:</strong> {{ nome }}</p>
+                <p><strong>Cognome:</strong> {{ cognome }}</p>
+                <p><strong>Città:</strong> {{ citta }}</p>
+            </div>
+        </div>
+
+        <!-- Esercizio 2: Dettagli Prodotto -->
+        <div class="exercise">
+            <h2>2. Dettagli Prodotto</h2>
+            <div class="product-info">
+                Il prodotto <strong>{{ nomeProdotto }}</strong> costa <strong>{{ prezzoProdotto }} €</strong>
+            </div>
+        </div>
+
+        <!-- Esercizio 3: Immagine Disattivata -->
+        <div class="exercise">
+            <h2>3. Bottone Disattivato</h2>
+            <p>Stato: {{ immagineDisabilitata ? 'Disabilitato' : 'Abilitato' }}</p>
+            <button v-bind:disabled="immagineDisabilitata">
+                Clicca qui
+            </button>
+            <button @click="immagineDisabilitata = !immagineDisabilitata">
+                {{ immagineDisabilitata ? 'Abilita' : 'Disabilita' }}
+            </button>
+        </div>
+
+        <!-- Esercizio 4: Tooltip Dinamico -->
+        <div class="exercise">
+            <h2>4. Tooltip Dinamico</h2>
+            <p class="tooltip-box" v-bind:title="messaggioTooltip">
+                Passa il mouse qui per vedere il tooltip!
+            </p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    // Esercizio 1: Profilo Utente
+                    nome: 'Gabriele',
+                    cognome: 'Savino',
+                    citta: 'Nichelino',
+
+                    // Esercizio 2: Dettagli Prodotto
+                    nomeProdotto: 'Laptop',
+                    prezzoProdotto: 999,
+
+                    // Esercizio 3: Immagine Disattivata
+                    immagineDisabilitata: true,
+
+                    // Esercizio 4: Tooltip Dinamico
+                    messaggioTooltip: 'Questo è un tooltip dinamico!'
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
