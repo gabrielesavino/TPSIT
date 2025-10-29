@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vue - Emit Eventi</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #f7f7f7;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 1.5rem;
+    }
+
+    /* ---- MODALE ---- */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      width: 300px;
+      text-align: center;
+      position: relative;
+    }
+
+    .modal button {
+      margin-top: 1rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    /* ---- STELLE ---- */
+    .stars {
+      display: flex;
+      justify-content: center;
+      gap: 0.3rem;
+      margin-top: 1rem;
+    }
+
+    .star {
+      font-size: 2rem;
+      cursor: pointer;
+      color: #ccc;
+      transition: color 0.2s;
+    }
+
+    .star.active {
+      color: gold;
+    }
+
+    .star:hover {
+      color: orange;
+    }
+
+    .valutazione {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>Componenti Vue con $emit</h1>
+
+    <!-- Pulsante per aprire la modale -->
+    <button @click="modaleAperta = true">Apri Modale</button>
+
+    <!-- Componente modale -->
+    <modal-dialog v-if="modaleAperta" @chiudi="modaleAperta = false"></modal-dialog>
+
+    <hr style="margin:2rem 0;">
+
+    <h2>Valutazione a Stelle</h2>
+    <star-rating @imposta-valutazione="aggiornaValutazione"></star-rating>
+    <div class="valutazione" v-if="valutazione > 0">
+      Hai dato una valutazione di: ⭐ {{ valutazione }} / 5
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
